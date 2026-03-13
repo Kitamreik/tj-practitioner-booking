@@ -3,8 +3,8 @@ import AdminBadge from "@/components/AdminBadge";
 import BookingCard from "@/components/BookingCard";
 import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
-import { mockBookings } from "@/lib/mockData";
-import { CalendarDays, Users, TrendingUp } from "lucide-react";
+import { useBookings, useDeleteBooking } from "@/hooks/useBookings";
+import { CalendarDays, Users, TrendingUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 5;
@@ -12,11 +12,12 @@ const ITEMS_PER_PAGE = 5;
 const AdminPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [bookings, setBookings] = useState(mockBookings);
+  const { data: bookings = [], isLoading } = useBookings();
+  const deleteBooking = useDeleteBooking();
 
   const filtered = useMemo(() => {
     return bookings.filter((b) =>
-      `${b.customer_name} ${b.service} ${b.practitioner}`
+      `${b.customer_name} ${b.service} ${b.practitioner || ""}`
         .toLowerCase()
         .includes(search.toLowerCase())
     );
@@ -26,8 +27,7 @@ const AdminPage = () => {
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const handleDelete = (id: string) => {
-    setBookings((prev) => prev.filter((b) => b.id !== id));
-    toast.success("Booking deleted successfully");
+    deleteBooking.mutate(id);
   };
 
   const handleEdit = (id: string) => {
@@ -75,23 +75,29 @@ const AdminPage = () => {
         <SearchBar value={search} onChange={(v) => { setSearch(v); setCurrentPage(1); }} placeholder="Search bookings..." />
       </div>
 
-      <div className="space-y-3">
-        {paginated.length > 0 ? (
-          paginated.map((booking) => (
-            <BookingCard
-              key={booking.id}
-              booking={booking}
-              showActions
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))
-        ) : (
-          <div className="rounded-xl border bg-card p-12 text-center">
-            <p className="text-muted-foreground">No bookings found.</p>
-          </div>
-        )}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {paginated.length > 0 ? (
+            paginated.map((booking) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                showActions
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))
+          ) : (
+            <div className="rounded-xl border bg-card p-12 text-center">
+              <p className="text-muted-foreground">No bookings found.</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {filtered.length > ITEMS_PER_PAGE && (
         <div className="mt-6">
