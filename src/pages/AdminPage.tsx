@@ -1,0 +1,105 @@
+import { useState, useMemo } from "react";
+import AdminBadge from "@/components/AdminBadge";
+import BookingCard from "@/components/BookingCard";
+import SearchBar from "@/components/SearchBar";
+import PaginationControls from "@/components/PaginationControls";
+import { mockBookings } from "@/lib/mockData";
+import { CalendarDays, Users, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
+
+const ITEMS_PER_PAGE = 5;
+
+const AdminPage = () => {
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [bookings, setBookings] = useState(mockBookings);
+
+  const filtered = useMemo(() => {
+    return bookings.filter((b) =>
+      `${b.customer_name} ${b.service} ${b.practitioner}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [search, bookings]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const handleDelete = (id: string) => {
+    setBookings((prev) => prev.filter((b) => b.id !== id));
+    toast.success("Booking deleted successfully");
+  };
+
+  const handleEdit = (id: string) => {
+    toast.info(`Editing booking ${id}`);
+  };
+
+  const confirmed = bookings.filter((b) => b.status === "confirmed").length;
+  const pending = bookings.filter((b) => b.status === "pending").length;
+
+  const dashStats = [
+    { label: "Total Bookings", value: bookings.length, icon: CalendarDays },
+    { label: "Confirmed", value: confirmed, icon: TrendingUp },
+    { label: "Pending", value: pending, icon: Users },
+  ];
+
+  return (
+    <div className="container py-8">
+      <div className="mb-8 flex items-center gap-3">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="font-heading text-3xl font-bold text-foreground">Admin Dashboard</h1>
+            <AdminBadge />
+          </div>
+          <p className="mt-1 text-muted-foreground">Manage all bookings and practitioner schedules</p>
+        </div>
+      </div>
+
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {dashStats.map((stat) => (
+          <div key={stat.label} className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <stat.icon className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-heading text-2xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mb-6">
+        <SearchBar value={search} onChange={(v) => { setSearch(v); setCurrentPage(1); }} placeholder="Search bookings..." />
+      </div>
+
+      <div className="space-y-3">
+        {paginated.length > 0 ? (
+          paginated.map((booking) => (
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              showActions
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          ))
+        ) : (
+          <div className="rounded-xl border bg-card p-12 text-center">
+            <p className="text-muted-foreground">No bookings found.</p>
+          </div>
+        )}
+      </div>
+
+      {filtered.length > ITEMS_PER_PAGE && (
+        <div className="mt-6">
+          <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminPage;
