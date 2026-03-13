@@ -4,10 +4,14 @@ export interface Booking {
   service: string;
   booking_time: string;
   status: "confirmed" | "pending" | "cancelled";
-  practitioner: string;
-  duration: number; // minutes
+  created_at?: string;
+  updated_at?: string;
+  // Frontend-only enrichment fields (not in backend DB)
+  practitioner?: string;
+  duration?: number;
 }
 
+// Mock data used as fallback when backend is unavailable
 export const mockBookings: Booking[] = [
   {
     id: "1",

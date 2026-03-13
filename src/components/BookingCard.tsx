@@ -37,14 +37,18 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
                 <User className="h-3.5 w-3.5" />
                 {booking.customer_name}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" />
-                {booking.duration} min
-              </span>
+              {booking.duration && (
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5" />
+                  {booking.duration} min
+                </span>
+              )}
             </div>
-            <p className="text-sm text-muted-foreground">
-              with <span className="font-medium text-foreground">{booking.practitioner}</span>
-            </p>
+            {booking.practitioner && (
+              <p className="text-sm text-muted-foreground">
+                with <span className="font-medium text-foreground">{booking.practitioner}</span>
+              </p>
+            )}
           </div>
           <div className="text-right">
             <p className="font-heading text-sm font-semibold text-foreground">

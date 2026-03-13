@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import BookingCard from "@/components/BookingCard";
 import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
-import { mockBookings } from "@/lib/mockData";
+import { useBookings } from "@/hooks/useBookings";
+import { Loader2 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -10,16 +11,17 @@ const BookingsPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { data: bookings = [], isLoading } = useBookings();
 
   const filtered = useMemo(() => {
-    return mockBookings.filter((b) => {
-      const matchesSearch = `${b.customer_name} ${b.service} ${b.practitioner}`
+    return bookings.filter((b) => {
+      const matchesSearch = `${b.customer_name} ${b.service} ${b.practitioner || ""}`
         .toLowerCase()
         .includes(search.toLowerCase());
       const matchesStatus = statusFilter === "all" || b.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter]);
+  }, [search, statusFilter, bookings]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -59,17 +61,23 @@ const BookingsPage = () => {
         </div>
       </div>
 
-      <div className="space-y-3">
-        {paginated.length > 0 ? (
-          paginated.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} />
-          ))
-        ) : (
-          <div className="rounded-xl border bg-card p-12 text-center">
-            <p className="text-muted-foreground">No bookings found matching your criteria.</p>
-          </div>
-        )}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {paginated.length > 0 ? (
+            paginated.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} />
+            ))
+          ) : (
+            <div className="rounded-xl border bg-card p-12 text-center">
+              <p className="text-muted-foreground">No bookings found matching your criteria.</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {filtered.length > ITEMS_PER_PAGE && (
         <div className="mt-6">
