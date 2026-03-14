@@ -35,6 +35,12 @@ const practitioners = [
   "Dr. Alex Rivera",
 ];
 
+interface FormErrors {
+  customerName?: string;
+  service?: string;
+  bookingTime?: string;
+}
+
 const CreateBookingDialog = () => {
   const [open, setOpen] = useState(false);
   const [customerName, setCustomerName] = useState("");
@@ -42,15 +48,47 @@ const CreateBookingDialog = () => {
   const [practitioner, setPractitioner] = useState("");
   const [bookingTime, setBookingTime] = useState("");
   const [duration, setDuration] = useState("60");
+  const [errors, setErrors] = useState<FormErrors>({});
   const createBooking = useCreateBooking();
+
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
+    const trimmedName = customerName.trim();
+
+    if (!trimmedName) {
+      newErrors.customerName = "Customer name is required.";
+    } else if (trimmedName.length < 2) {
+      newErrors.customerName = "Name must be at least 2 characters.";
+    } else if (trimmedName.length > 100) {
+      newErrors.customerName = "Name must be under 100 characters.";
+    } else if (!/^[a-zA-Z\s\-'.]+$/.test(trimmedName)) {
+      newErrors.customerName = "Name contains invalid characters.";
+    }
+
+    if (!service) {
+      newErrors.service = "Please select a service.";
+    }
+
+    if (!bookingTime) {
+      newErrors.bookingTime = "Please select a date and time.";
+    } else {
+      const selected = new Date(bookingTime);
+      if (selected < new Date()) {
+        newErrors.bookingTime = "Booking time must be in the future.";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName || !service || !bookingTime) return;
+    if (!validate()) return;
 
     createBooking.mutate(
       {
-        customer_name: customerName,
+        customer_name: customerName.trim(),
         service,
         booking_time: new Date(bookingTime).toISOString(),
         status: "pending",
@@ -72,10 +110,11 @@ const CreateBookingDialog = () => {
     setPractitioner("");
     setBookingTime("");
     setDuration("60");
+    setErrors({});
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
@@ -87,22 +126,24 @@ const CreateBookingDialog = () => {
           <DialogTitle>Create New Booking</DialogTitle>
           <DialogDescription>Fill in the details to schedule a new appointment.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="customerName">Customer Name</Label>
             <Input
               id="customerName"
               value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
+              onChange={(e) => { setCustomerName(e.target.value); if (errors.customerName) setErrors((p) => ({ ...p, customerName: undefined })); }}
               placeholder="e.g. Sarah Johnson"
-              required
+              maxLength={100}
+              aria-invalid={!!errors.customerName}
             />
+            {errors.customerName && <p className="text-xs text-destructive">{errors.customerName}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="service">Service</Label>
-            <Select value={service} onValueChange={setService} required>
-              <SelectTrigger>
+            <Select value={service} onValueChange={(v) => { setService(v); if (errors.service) setErrors((p) => ({ ...p, service: undefined })); }}>
+              <SelectTrigger aria-invalid={!!errors.service}>
                 <SelectValue placeholder="Select a service" />
               </SelectTrigger>
               <SelectContent>
@@ -111,6 +152,7 @@ const CreateBookingDialog = () => {
                 ))}
               </SelectContent>
             </Select>
+            {errors.service && <p className="text-xs text-destructive">{errors.service}</p>}
           </div>
 
           <div className="space-y-2">
@@ -133,9 +175,11 @@ const CreateBookingDialog = () => {
               id="bookingTime"
               type="datetime-local"
               value={bookingTime}
-              onChange={(e) => setBookingTime(e.target.value)}
-              required
+              onChange={(e) => { setBookingTime(e.target.value); if (errors.bookingTime) setErrors((p) => ({ ...p, bookingTime: undefined })); }}
+              min={new Date().toISOString().slice(0, 16)}
+              aria-invalid={!!errors.bookingTime}
             />
+            {errors.bookingTime && <p className="text-xs text-destructive">{errors.bookingTime}</p>}
           </div>
 
           <div className="space-y-2">
