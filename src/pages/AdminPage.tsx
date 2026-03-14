@@ -3,17 +3,19 @@ import AdminBadge from "@/components/AdminBadge";
 import BookingCard from "@/components/BookingCard";
 import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
-import { useBookings, useDeleteBooking } from "@/hooks/useBookings";
+import CreateBookingDialog from "@/components/CreateBookingDialog";
+import EditBookingDialog from "@/components/EditBookingDialog";
+import { useBookings } from "@/hooks/useBookings";
 import { CalendarDays, Users, TrendingUp, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import type { Booking } from "@/lib/mockData";
 
 const ITEMS_PER_PAGE = 5;
 
 const AdminPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [editBooking, setEditBooking] = useState<Booking | null>(null);
   const { data: bookings = [], isLoading } = useBookings();
-  const deleteBooking = useDeleteBooking();
 
   const filtered = useMemo(() => {
     return bookings.filter((b) =>
@@ -26,12 +28,9 @@ const AdminPage = () => {
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  const handleDelete = (id: string) => {
-    deleteBooking.mutate(id);
-  };
-
   const handleEdit = (id: string) => {
-    toast.info(`Editing booking ${id}`);
+    const b = bookings.find((x) => x.id === id);
+    if (b) setEditBooking(b);
   };
 
   const confirmed = bookings.filter((b) => b.status === "confirmed").length;
@@ -45,7 +44,7 @@ const AdminPage = () => {
 
   return (
     <div className="container py-8">
-      <div className="mb-8 flex items-center gap-3">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="font-heading text-3xl font-bold text-foreground">Admin Dashboard</h1>
@@ -53,6 +52,7 @@ const AdminPage = () => {
           </div>
           <p className="mt-1 text-muted-foreground">Manage all bookings and practitioner schedules</p>
         </div>
+        <CreateBookingDialog />
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -88,7 +88,6 @@ const AdminPage = () => {
                 booking={booking}
                 showActions
                 onEdit={handleEdit}
-                onDelete={handleDelete}
               />
             ))
           ) : (
@@ -104,6 +103,12 @@ const AdminPage = () => {
           <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>
       )}
+
+      <EditBookingDialog
+        booking={editBooking}
+        open={!!editBooking}
+        onOpenChange={(open) => { if (!open) setEditBooking(null); }}
+      />
     </div>
   );
 };

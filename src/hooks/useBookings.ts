@@ -1,23 +1,49 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/clerk-react";
 import { bookingsApi } from "@/lib/api";
 import { mockBookings, type Booking } from "@/lib/mockData";
 import { toast } from "sonner";
 
-// Auth token - in production this would come from Clerk or your auth provider
-// For now we attempt the real API and fall back to mock data
-function useAuthToken(): string | undefined {
-  // Placeholder: integrate with your auth provider to get JWT token
-  return undefined;
+/**
+ * Clerk auth integration:
+ *
+ * To connect real auth, wrap your app with <ClerkProvider publishableKey="pk_...">
+ * in App.tsx or main.tsx. Then this hook will automatically call Clerk's getToken()
+ * to attach a JWT to every API request.
+ *
+ * Code snippet for reference:
+ *
+ *   import { ClerkProvider } from "@clerk/clerk-react";
+ *
+ *   <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+ *     <App />
+ *   </ClerkProvider>
+ *
+ * The useAuthToken hook below uses Clerk's useAuth().getToken() to fetch a
+ * session JWT. The backend verifies this token via Clerk middleware.
+ */
+
+function useAuthToken() {
+  // When ClerkProvider is available, useAuth() returns { getToken }.
+  // If Clerk is not configured yet, we catch and return undefined.
+  try {
+    const { getToken } = useAuth();
+    return getToken;
+  } catch {
+    // Clerk not configured — return null so we fall back to mock data
+    return null;
+  }
 }
 
 export function useBookings() {
-  const token = useAuthToken();
+  const getToken = useAuthToken();
 
   return useQuery({
     queryKey: ["bookings"],
     queryFn: async () => {
       try {
-        const data = await bookingsApi.getAll(token);
+        const token = getToken ? await getToken() : undefined;
+        const data = await bookingsApi.getAll(token ?? undefined);
         return data;
       } catch (error) {
         console.warn("Backend unavailable, using mock data:", error);
@@ -29,15 +55,15 @@ export function useBookings() {
 
 export function useDeleteBooking() {
   const queryClient = useQueryClient();
-  const token = useAuthToken();
+  const getToken = useAuthToken();
 
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        await bookingsApi.delete(id, token);
+        const token = getToken ? await getToken() : undefined;
+        await bookingsApi.delete(id, token ?? undefined);
       } catch (error) {
         console.warn("Delete via API failed, removing locally:", error);
-        // Optimistic removal from cache
         queryClient.setQueryData<Booking[]>(["bookings"], (old) =>
           old ? old.filter((b) => b.id !== id) : []
         );
@@ -55,10 +81,13 @@ export function useDeleteBooking() {
 
 export function useCreateBooking() {
   const queryClient = useQueryClient();
-  const token = useAuthToken();
+  const getToken = useAuthToken();
 
   return useMutation({
-    mutationFn: (data: Partial<Booking>) => bookingsApi.create(data, token),
+    mutationFn: async (data: Partial<Booking>) => {
+      const token = getToken ? await getToken() : undefined;
+      return bookingsApi.create(data, token ?? undefined);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
       toast.success("Booking created successfully");
@@ -71,11 +100,13 @@ export function useCreateBooking() {
 
 export function useUpdateBooking() {
   const queryClient = useQueryClient();
-  const token = useAuthToken();
+  const getToken = useAuthToken();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Booking> }) =>
-      bookingsApi.update(id, data, token),
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Booking> }) => {
+      const token = getToken ? await getToken() : undefined;
+      return bookingsApi.update(id, data, token ?? undefined);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
       toast.success("Booking updated successfully");
