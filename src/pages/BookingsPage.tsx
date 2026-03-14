@@ -2,8 +2,11 @@ import { useState, useMemo } from "react";
 import BookingCard from "@/components/BookingCard";
 import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
+import CreateBookingDialog from "@/components/CreateBookingDialog";
+import EditBookingDialog from "@/components/EditBookingDialog";
 import { useBookings } from "@/hooks/useBookings";
 import { Loader2 } from "lucide-react";
+import type { Booking } from "@/lib/mockData";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -11,6 +14,7 @@ const BookingsPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [editBooking, setEditBooking] = useState<Booking | null>(null);
   const { data: bookings = [], isLoading } = useBookings();
 
   const filtered = useMemo(() => {
@@ -35,9 +39,12 @@ const BookingsPage = () => {
 
   return (
     <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold text-foreground">Bookings</h1>
-        <p className="mt-1 text-muted-foreground">View and manage all scheduled appointments</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-foreground">Bookings</h1>
+          <p className="mt-1 text-muted-foreground">View and manage all scheduled appointments</p>
+        </div>
+        <CreateBookingDialog />
       </div>
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -69,7 +76,15 @@ const BookingsPage = () => {
         <div className="space-y-3">
           {paginated.length > 0 ? (
             paginated.map((booking) => (
-              <BookingCard key={booking.id} booking={booking} />
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                showActions
+                onEdit={(id) => {
+                  const b = bookings.find((x) => x.id === id);
+                  if (b) setEditBooking(b);
+                }}
+              />
             ))
           ) : (
             <div className="rounded-xl border bg-card p-12 text-center">
@@ -88,6 +103,12 @@ const BookingsPage = () => {
           />
         </div>
       )}
+
+      <EditBookingDialog
+        booking={editBooking}
+        open={!!editBooking}
+        onOpenChange={(open) => { if (!open) setEditBooking(null); }}
+      />
     </div>
   );
 };
