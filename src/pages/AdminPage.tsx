@@ -8,6 +8,7 @@ import EditBookingDialog from "@/components/EditBookingDialog";
 import { useBookings } from "@/hooks/useBookings";
 import { CalendarDays, Users, TrendingUp, Loader2 } from "lucide-react";
 import type { Booking } from "@/lib/mockData";
+import FileVault from "@/components/FileVault";
 
 const ITEMS_PER_PAGE = 5;
 
