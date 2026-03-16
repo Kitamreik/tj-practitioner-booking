@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ClerkProvider } from "@clerk/clerk-react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,7 +14,9 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+const AppContent = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -32,5 +35,21 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+const App = () => {
+  if (!CLERK_PUBLISHABLE_KEY) {
+    console.warn(
+      "VITE_CLERK_PUBLISHABLE_KEY is not set. Running without Clerk authentication. " +
+      "Add the key to your .env.local file to enable auth."
+    );
+    return <AppContent />;
+  }
+
+  return (
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <AppContent />
+    </ClerkProvider>
+  );
+};
 
 export default App;
