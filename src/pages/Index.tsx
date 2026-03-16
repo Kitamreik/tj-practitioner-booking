@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { Calendar, ArrowRight, Users, Clock, CheckCircle } from "lucide-react";
 
 const stats = [
-  { label: "Active Practitioners", value: "12", icon: Users },
-  { label: "Bookings This Week", value: "148", icon: Calendar },
-  { label: "Avg. Session", value: "52 min", icon: Clock },
+  { label: "Active Practitioners", value: "5", icon: Users },
+  { label: "Bookings This Week", value: "3", icon: Calendar },
+  { label: "Avg. Session", value: "60 min", icon: Clock },
   { label: "Satisfaction", value: "98%", icon: CheckCircle },
 ];
 
@@ -64,9 +64,9 @@ const Index = () => {
         </div>
         <div className="mt-12 grid gap-8 md:grid-cols-3">
           {[
-            { step: "1", title: "Choose a Service", desc: "Browse our range of wellness services from qualified practitioners." },
+            { step: "1", title: "Choose a Service", desc: "Browse our range of services from qualified practitioners." },
             { step: "2", title: "Pick a Time", desc: "Select from available time slots that fit your schedule." },
-            { step: "3", title: "Confirm & Go", desc: "Receive instant confirmation and reminders for your session." },
+            { step: "3", title: "Confirm & Go", desc: "Receive instant confirmation for your session." },
           ].map((item) => (
             <div key={item.step} className="rounded-xl border bg-card p-8">
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary font-heading text-lg font-bold text-primary-foreground">

@@ -58,6 +58,7 @@ export const mockBookings: Booking[] = [
     practitioner: "Dr. Wei Lin",
     duration: 30,
   },
+  //pagination starts after 5 entries
   {
     id: "6",
     customer_name: "Carlos Mendez",
@@ -67,22 +68,22 @@ export const mockBookings: Booking[] = [
     practitioner: "Dr. Emily Chen",
     duration: 60,
   },
-  {
-    id: "7",
-    customer_name: "Priya Sharma",
-    service: "Acupuncture Session",
-    booking_time: "2026-03-16T15:00:00",
-    status: "confirmed",
-    practitioner: "Dr. Wei Lin",
-    duration: 45,
-  },
-  {
-    id: "8",
-    customer_name: "Ryan O'Brien",
-    service: "Physical Therapy",
-    booking_time: "2026-03-17T11:00:00",
-    status: "confirmed",
-    practitioner: "Dr. Alex Rivera",
-    duration: 60,
-  },
+  // {
+  //   id: "7",
+  //   customer_name: "Priya Sharma",
+  //   service: "Acupuncture Session",
+  //   booking_time: "2026-03-16T15:00:00",
+  //   status: "confirmed",
+  //   practitioner: "Dr. Wei Lin",
+  //   duration: 45,
+  // },
+  // {
+  //   id: "8",
+  //   customer_name: "Ryan O'Brien",
+  //   service: "Physical Therapy",
+  //   booking_time: "2026-03-17T11:00:00",
+  //   status: "confirmed",
+  //   practitioner: "Dr. Alex Rivera",
+  //   duration: 60,
+  // },
 ];

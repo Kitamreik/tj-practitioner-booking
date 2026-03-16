@@ -2,75 +2,12 @@
 
 A practitioner booking management platform built with React, Vite, TypeScript, Tailwind CSS, and shadcn/ui.
 
-**Live URL**: [tj-practitioner-booking.lovable.app](https://tj-practitioner-booking.lovable.app)
-
 ## Tech Stack
 
 - **Frontend**: React 18, Vite 5, TypeScript, Tailwind CSS, shadcn/ui
 - **State Management**: TanStack React Query
 - **Authentication**: Clerk
 - **Backend API**: Node/Express on Render (`kit-services-bp-be.onrender.com`)
-
-## Getting Started Locally
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) v18+ (install via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
-- npm or bun package manager
-
-### 1. Clone the repository
-
-```sh
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
-```
-
-### 2. Install dependencies
-
-```sh
-npm install
-```
-
-### 3. Set up environment variables
-
-Create a `.env.local` file in the project root:
-
-```env
-# Required for Clerk authentication
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key_here
-
-# Optional: override the backend API URL (defaults to the Render deployment)
-VITE_API_URL=https://kit-services-bp-be.onrender.com
-```
-
-To get your Clerk publishable key:
-1. Sign up at [clerk.com](https://clerk.com)
-2. Create a new application
-3. Go to **API Keys** in the Clerk dashboard
-4. Copy the **Publishable key** (starts with `pk_test_` or `pk_live_`)
-
-> **Note**: The app will run without `VITE_CLERK_PUBLISHABLE_KEY` but authentication will be disabled and the app will fall back to mock booking data.
-
-### 4. Start the development server
-
-```sh
-npm run dev
-```
-
-The app will be available at [http://localhost:8080](http://localhost:8080).
-
-### 5. Build for production
-
-```sh
-npm run build
-npm run preview
-```
-
-### 6. Run tests
-
-```sh
-npm test
-```
 
 ## Project Structure
 
@@ -100,20 +37,57 @@ src/
 └── main.tsx            # Entry point
 ```
 
+
+## Frontend Highlights
+
+- ✅ Clerk integrated with `ClerkProvider`, `SignIn`, `SignUp`, `UserButton`
+- ✅ Admin Dashboard with view, edit, delete bookings using `fetch()`
+- ✅ Local timezone conversion using `new Date().toLocaleString()`
+- ✅ Role-based UI hiding using a `useRole()` hook
+- ✅ Admin badge shown with `AdminBadge` component
+- ✅ CORS configured for cross-origin auth with Clerk
+
+---
+
 ## Backend API
 
-The backend is a Node/Express server deployed on Render. API endpoints:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/bookings` | List all bookings |
-| GET | `/api/bookings/:id` | Get a single booking |
-| POST | `/api/bookings/create` | Create a new booking |
-| PUT | `/api/bookings/update/:id` | Update a booking |
-| DELETE | `/api/bookings/delete/:id` | Delete a booking |
+The backend is a Node/Express server deployed on Render.
 
 Backend source: [github.com/Kitamreik/du-aip-booking-platform-backend](https://github.com/Kitamreik/du-aip-booking-platform-backend)
 
-## Deployment
+## Getting Started Locally
 
-Open [Lovable](https://lovable.dev) and click **Share → Publish** to deploy the frontend. Backend changes on Render deploy via GitHub pushes.
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18+ (install via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+- npm or bun package manager
+
+### 1. Clone the repository
+
+```sh
+git clone <YOUR_GIT_URL>
+cd <YOUR_PROJECT_NAME>
+```
+
+### 2. Install dependencies
+
+```sh
+npm install
+```
+
+### 3. Set up environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# Required for Clerk authentication
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key_here
+```
+
+To get your Clerk publishable key:
+1. Sign up at [clerk.com](https://clerk.com)
+2. Create a new application
+3. Go to **API Keys** in the Clerk dashboard
+4. Copy the **Publishable key** (starts with `pk_test_` or `pk_live_`)
+
+
