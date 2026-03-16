@@ -110,6 +110,8 @@ const AdminPage = () => {
         open={!!editBooking}
         onOpenChange={(open) => { if (!open) setEditBooking(null); }}
       />
+
+      <FileVault />
     </div>
   );
 };
