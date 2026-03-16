@@ -1,73 +1,119 @@
-# Welcome to your Lovable project
+# TJ Practitioner Booking Platform
 
-## Project info
+A practitioner booking management platform built with React, Vite, TypeScript, Tailwind CSS, and shadcn/ui.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Live URL**: [tj-practitioner-booking.lovable.app](https://tj-practitioner-booking.lovable.app)
 
-## How can I edit this code?
+## Tech Stack
 
-There are several ways of editing your application.
+- **Frontend**: React 18, Vite 5, TypeScript, Tailwind CSS, shadcn/ui
+- **State Management**: TanStack React Query
+- **Authentication**: Clerk
+- **Backend API**: Node/Express on Render (`kit-services-bp-be.onrender.com`)
 
-**Use Lovable**
+## Getting Started Locally
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- [Node.js](https://nodejs.org/) v18+ (install via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+- npm or bun package manager
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### 1. Clone the repository
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 2. Install dependencies
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```sh
+npm install
+```
+
+### 3. Set up environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# Required for Clerk authentication
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key_here
+
+# Optional: override the backend API URL (defaults to the Render deployment)
+VITE_API_URL=https://kit-services-bp-be.onrender.com
+```
+
+To get your Clerk publishable key:
+1. Sign up at [clerk.com](https://clerk.com)
+2. Create a new application
+3. Go to **API Keys** in the Clerk dashboard
+4. Copy the **Publishable key** (starts with `pk_test_` or `pk_live_`)
+
+> **Note**: The app will run without `VITE_CLERK_PUBLISHABLE_KEY` but authentication will be disabled and the app will fall back to mock booking data.
+
+### 4. Start the development server
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at [http://localhost:8080](http://localhost:8080).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 5. Build for production
 
-**Use GitHub Codespaces**
+```sh
+npm run build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 6. Run tests
 
-## What technologies are used for this project?
+```sh
+npm test
+```
 
-This project is built with:
+## Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+src/
+├── components/         # Reusable UI components
+│   ├── ui/             # shadcn/ui primitives
+│   ├── BookingCard.tsx  # Booking display card
+│   ├── CreateBookingDialog.tsx  # New booking form modal
+│   ├── EditBookingDialog.tsx    # Edit/delete booking modal
+│   ├── Navbar.tsx       # Navigation bar
+│   ├── SearchBar.tsx    # Search input
+│   └── PaginationControls.tsx
+├── hooks/
+│   └── useBookings.ts  # Data fetching hooks (TanStack Query + Clerk auth)
+├── lib/
+│   ├── api.ts          # Backend API client
+│   ├── mockData.ts     # Fallback mock data
+│   └── utils.ts        # Utility functions
+├── pages/
+│   ├── Index.tsx       # Landing page
+│   ├── BookingsPage.tsx # Booking list with search/filter/pagination
+│   ├── AdminPage.tsx   # Admin dashboard
+│   ├── SignInPage.tsx   # Sign in
+│   └── SignUpPage.tsx   # Sign up
+├── App.tsx             # Root component with ClerkProvider
+└── main.tsx            # Entry point
+```
 
-## How can I deploy this project?
+## Backend API
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+The backend is a Node/Express server deployed on Render. API endpoints:
 
-## Can I connect a custom domain to my Lovable project?
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/bookings` | List all bookings |
+| GET | `/api/bookings/:id` | Get a single booking |
+| POST | `/api/bookings/create` | Create a new booking |
+| PUT | `/api/bookings/update/:id` | Update a booking |
+| DELETE | `/api/bookings/delete/:id` | Delete a booking |
 
-Yes, you can!
+Backend source: [github.com/Kitamreik/du-aip-booking-platform-backend](https://github.com/Kitamreik/du-aip-booking-platform-backend)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Deployment
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Open [Lovable](https://lovable.dev) and click **Share → Publish** to deploy the frontend. Backend changes on Render deploy via GitHub pushes.
