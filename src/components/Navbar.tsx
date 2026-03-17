@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Calendar, LayoutDashboard, LogIn } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const location = useLocation();
@@ -38,6 +39,7 @@ const Navbar = () => {
               </Link>
             );
           })}
+          <ThemeToggle />
           <Link
             to="/sign-in"
             className="ml-2 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
