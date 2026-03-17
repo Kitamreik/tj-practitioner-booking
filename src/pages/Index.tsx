@@ -79,6 +79,9 @@ const Index = () => {
           ))}
         </div>
       </section>
+
+      {/* Testimonials */}
+      <TestimonialsCarousel />
     </div>
   );
 };

@@ -113,6 +113,7 @@ const AdminPage = () => {
       />
 
       <FileVault />
+      <AdminTestimonials />
     </div>
   );
 };
