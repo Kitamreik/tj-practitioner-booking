@@ -5,11 +5,13 @@ import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
 import CreateBookingDialog from "@/components/CreateBookingDialog";
 import EditBookingDialog from "@/components/EditBookingDialog";
-import { useBookings } from "@/hooks/useBookings";
+import ChecklistTracker from "@/components/ChecklistTracker";
+import { useBookings, useDeleteBooking } from "@/hooks/useBookings";
 import { CalendarDays, Users, TrendingUp, Loader2 } from "lucide-react";
 import type { Booking } from "@/lib/mockData";
 import FileVault from "@/components/FileVault";
 import AdminTestimonials from "@/components/AdminTestimonials";
+import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -17,7 +19,9 @@ const AdminPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const { data: bookings = [], isLoading } = useBookings();
+  const deleteMutation = useDeleteBooking();
 
   const filtered = useMemo(() => {
     return bookings.filter((b) =>
@@ -33,6 +37,16 @@ const AdminPage = () => {
   const handleEdit = (id: string) => {
     const b = bookings.find((x) => x.id === id);
     if (b) setEditBooking(b);
+  };
+
+  const handleDelete = (id: string) => {
+    if (deleteConfirm === id) {
+      deleteMutation.mutate(id);
+      setDeleteConfirm(null);
+    } else {
+      setDeleteConfirm(id);
+      toast.info("Click delete again to confirm removal.");
+    }
   };
 
   const confirmed = bookings.filter((b) => b.status === "confirmed").length;
@@ -90,6 +104,7 @@ const AdminPage = () => {
                 booking={booking}
                 showActions
                 onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))
           ) : (
@@ -97,6 +112,7 @@ const AdminPage = () => {
               <p className="text-muted-foreground">No bookings found.</p>
             </div>
           )}
+          
         </div>
       )}
 
@@ -112,6 +128,7 @@ const AdminPage = () => {
         onOpenChange={(open) => { if (!open) setEditBooking(null); }}
       />
 
+      <ChecklistTracker bookings={bookings} />
       <FileVault />
       <AdminTestimonials />
     </div>

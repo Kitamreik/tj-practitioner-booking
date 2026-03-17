@@ -7,8 +7,8 @@ const Navbar = () => {
 
   const navItems = [
     { to: "/", label: "Home", icon: Calendar },
-    { to: "/bookings", label: "Bookings", icon: Calendar },
-    { to: "/admin", label: "Admin", icon: LayoutDashboard },
+    // { to: "/bookings", label: "Bookings", icon: Calendar },
+    // { to: "/admin", label: "Admin", icon: LayoutDashboard },
   ];
 
   return (

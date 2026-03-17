@@ -59,7 +59,7 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
             </p>
           </div>
         </div>
-        {/* {showActions && (
+        {showActions && (
           <div className="mt-4 flex gap-2 border-t pt-3">
             <button
               onClick={() => onEdit?.(booking.id)}
@@ -74,7 +74,7 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
               Delete
             </button>
           </div>
-        )} */}
+        )}
       </CardContent>
     </Card>
   );
