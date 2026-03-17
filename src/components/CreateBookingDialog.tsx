@@ -22,17 +22,20 @@ import { useCreateBooking } from "@/hooks/useBookings";
 import { Plus } from "lucide-react";
 
 const services = [
-  "Deep Tissue Massage",
-  "Acupuncture Session",
-  "Physical Therapy",
-  "Sports Recovery",
-  "Wellness Consultation",
+  "Organizational Systems Work",
+  "Panels and Talks",
+  "Remote & In- Person Conferences",
+  "Workshops",
+  "One-on-One Consulting",
+  "Short Term/Long Term Retainer"
 ];
 
 const practitioners = [
-  "Dr. Emily Chen",
-  "Dr. Wei Lin",
-  "Dr. Alex Rivera",
+  "Kit A. (they/she)",
+  "Tree Y. (she/they)",
+  "Cori F. (she/her)",
+  "Timothy C. (he/him)",
+  "Ray V. (he/him)"
 ];
 
 interface FormErrors {
