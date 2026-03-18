@@ -86,7 +86,14 @@ export function useCreateBooking() {
   return useMutation({
     mutationFn: async (data: Partial<Booking>) => {
       const token = getToken ? await getToken() : undefined;
-      return bookingsApi.create(data, token ?? undefined);
+      const result = await bookingsApi.create(data, token ?? undefined);
+
+      // Fire-and-forget email notification to the backend
+      bookingsApi.sendNotification(data, token ?? undefined).catch((err) => {
+        console.warn("Email notification failed (backend may not support /api/bookings/notify yet):", err);
+      });
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });

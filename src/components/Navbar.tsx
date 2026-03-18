@@ -1,15 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogIn } from "lucide-react";
+import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useRole } from "@/lib/roles";
 
 const Navbar = () => {
   const location = useLocation();
+  const { isAdmin, isFellow, isLoaded } = useRole();
 
   const navItems = [
-    { to: "/", label: "Home", icon: Calendar },
-    // { to: "/bookings", label: "Bookings", icon: Calendar },
-    // { to: "/admin", label: "Admin", icon: LayoutDashboard },
-  ];
+    { to: "/", label: "Home", icon: Calendar, show: true },
+    { to: "/bookings", label: "Bookings", icon: Calendar, show: true },
+    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isAdmin },
+    { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
+  ].filter((item) => item.show);
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">

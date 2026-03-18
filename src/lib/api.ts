@@ -51,4 +51,11 @@ export const bookingsApi = {
 
   delete: (id: string, token?: string): Promise<void> =>
     apiFetch<void>(`/api/bookings/delete/${id}`, { method: "DELETE" }, { token }),
+
+  sendNotification: (bookingData: Partial<Booking>, token?: string): Promise<void> =>
+    apiFetch<void>(
+      "/api/bookings/notify",
+      { method: "POST", body: JSON.stringify(bookingData) },
+      { token }
+    ),
 };
