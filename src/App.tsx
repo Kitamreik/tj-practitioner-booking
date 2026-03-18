@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
-import RoleGuard from "@/components/RoleGuard";
+// import RoleGuard from "@/components/RoleGuard";
 import Index from "./pages/Index";
 import BookingsPage from "./pages/BookingsPage";
 import AdminPage from "./pages/AdminPage";
@@ -27,8 +27,11 @@ const AppContent = () => (
         <Navbar />
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/bookings" element={<BookingsPage />} />
-          <Route
+          <Route path="/bookings" element={<FellowsPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/fellows" element={<BookingsPage />} />
+          {/* Role Guard */}
+          {/* <Route
             path="/admin"
             element={
               <RoleGuard allowedRoles={["admin"]}>
@@ -43,7 +46,7 @@ const AppContent = () => (
                 <FellowsPage />
               </RoleGuard>
             }
-          />
+          /> */}
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="*" element={<NotFound />} />

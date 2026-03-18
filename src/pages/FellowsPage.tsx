@@ -3,7 +3,7 @@ import BookingCard from "@/components/BookingCard";
 import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
 import { useBookings } from "@/hooks/useBookings";
-import { Loader2, GraduationCap } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -25,15 +25,10 @@ const FellowsPage = () => {
 
   return (
     <div className="container py-8">
-      <div className="mb-8">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-            <GraduationCap className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-heading text-3xl font-bold text-foreground">Fellow Dashboard</h1>
-            <p className="mt-1 text-muted-foreground">View your scheduled sessions and appointments</p>
-          </div>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-foreground">Bookings</h1>
+          <p className="mt-1 text-muted-foreground">View all scheduled appointments practitioners are managing.</p>
         </div>
       </div>
 

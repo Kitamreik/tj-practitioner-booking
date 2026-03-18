@@ -68,12 +68,12 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
             >
               Edit
             </button>
-            <button
+            {/* <button
               onClick={() => onDelete?.(booking.id)}
               className="rounded-md bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
             >
               Delete
-            </button>
+            </button> */}
           </div>
         )}
         {showActions && <BookingChecklist bookingId={booking.id} />}

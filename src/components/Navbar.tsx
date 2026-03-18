@@ -1,28 +1,28 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut } from "lucide-react";
+import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useRole } from "@/lib/roles";
 
-function useClerkAuth() {
-  try {
-    const { signOut } = useClerk();
-    const { isSignedIn, isLoaded } = useUser();
-    return { isSignedIn: !!isSignedIn, isLoaded, signOut };
-  } catch {
-    return { isSignedIn: false, isLoaded: true, signOut: null };
-  }
-}
+// function useClerkAuth() {
+//   try {
+//     const { signOut } = useClerk();
+//     const { isSignedIn, isLoaded } = useUser();
+//     return { isSignedIn: !!isSignedIn, isLoaded, signOut };
+//   } catch {
+//     return { isSignedIn: false, isLoaded: true, signOut: null };
+//   }
+// }
 
 const Navbar = () => {
   const location = useLocation();
   const { isAdmin, isFellow } = useRole();
-  const { isSignedIn, signOut } = useClerkAuth();
+  // const { isSignedIn, signOut } = useClerkAuth();
 
   const navItems = [
-    { to: "/", label: "Home", icon: Calendar, show: true },
+    { to: "/", label: "Home", icon: HouseIcon, show: true },
     { to: "/bookings", label: "Bookings", icon: Calendar, show: true },
-    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isAdmin },
+    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: true },
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
   ].filter((item) => item.show);
 
@@ -55,7 +55,7 @@ const Navbar = () => {
             );
           })}
           <ThemeToggle />
-          {isSignedIn && signOut ? (
+          {/* {isSignedIn && signOut ? (
             <button
               onClick={() => signOut({ redirectUrl: "/" })}
               className="ml-2 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
@@ -71,7 +71,7 @@ const Navbar = () => {
               <LogIn className="h-4 w-4" />
               Sign In
             </Link>
-          )}
+          )} */}
         </nav>
       </div>
     </header>
