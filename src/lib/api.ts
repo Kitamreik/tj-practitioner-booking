@@ -38,7 +38,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}, apiOptions: 
 
 export const bookingsApi = {
   getAll: (token?: string): Promise<Booking[]> =>
-    apiFetch<Booking[]>("/api/bookings", {}, { token }),
+    apiFetch<Booking[]>("/api/bookings/", {}, { token }),
 
   getById: (id: string, token?: string): Promise<Booking> =>
     apiFetch<Booking>(`/api/bookings/${id}`, {}, { token }),

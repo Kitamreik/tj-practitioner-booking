@@ -27,7 +27,7 @@ const AppContent = () => (
         <Navbar />
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/bookings" element={<FellowsPage />} />
+          <Route path="/api/bookings/" element={<FellowsPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/fellows" element={<BookingsPage />} />
           {/* Role Guard */}
