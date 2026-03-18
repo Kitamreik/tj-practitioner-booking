@@ -76,6 +76,7 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
             </button>
           </div>
         )}
+        {showActions && <BookingChecklist bookingId={booking.id} />}
       </CardContent>
     </Card>
   );
