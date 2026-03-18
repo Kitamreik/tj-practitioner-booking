@@ -5,9 +5,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
+import RoleGuard from "@/components/RoleGuard";
 import Index from "./pages/Index";
 import BookingsPage from "./pages/BookingsPage";
 import AdminPage from "./pages/AdminPage";
+import FellowsPage from "./pages/FellowsPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import NotFound from "./pages/NotFound";
@@ -26,7 +28,22 @@ const AppContent = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/bookings" element={<BookingsPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route
+            path="/admin"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <AdminPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/fellows"
+            element={
+              <RoleGuard allowedRoles={["fellow"]}>
+                <FellowsPage />
+              </RoleGuard>
+            }
+          />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="*" element={<NotFound />} />
