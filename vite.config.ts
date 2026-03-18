@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    allowedHosts: ["tj-practitioner-booking.onrender.com"],
+    // allowedHosts: ["tj-practitioner-booking.onrender.com"],
     port: 8080,
     hmr: {
       overlay: false,
