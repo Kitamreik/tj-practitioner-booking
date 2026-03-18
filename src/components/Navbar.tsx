@@ -22,7 +22,7 @@ const Navbar = () => {
   const navItems = [
     { to: "/", label: "Home", icon: HouseIcon, show: true },
     { to: "/bookings", label: "Bookings", icon: Calendar, show: true },
-    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: true },
+    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isFellow },
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
   ].filter((item) => item.show);
 
