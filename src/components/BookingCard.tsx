@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, User } from "lucide-react";
 import type { Booking } from "@/lib/mockData";
+import BookingChecklist from "@/components/BookingChecklist";
 
 interface BookingCardProps {
   booking: Booking;
@@ -75,6 +76,7 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
             </button>
           </div>
         )}
+        {showActions && <BookingChecklist bookingId={booking.id} />}
       </CardContent>
     </Card>
   );
