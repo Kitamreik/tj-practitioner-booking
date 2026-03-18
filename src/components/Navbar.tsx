@@ -1,11 +1,23 @@
 import { Link, useLocation } from "react-router-dom";
 import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut } from "lucide-react";
+import { useClerk, useUser } from "@clerk/clerk-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useRole } from "@/lib/roles";
 
+function useClerkAuth() {
+  try {
+    const { signOut } = useClerk();
+    const { isSignedIn, isLoaded } = useUser();
+    return { isSignedIn: !!isSignedIn, isLoaded, signOut };
+  } catch {
+    return { isSignedIn: false, isLoaded: true, signOut: null };
+  }
+}
+
 const Navbar = () => {
   const location = useLocation();
-  const { isAdmin, isFellow, isLoaded } = useRole();
+  const { isAdmin, isFellow } = useRole();
+  const { isSignedIn, signOut } = useClerkAuth();
 
   const navItems = [
     { to: "/", label: "Home", icon: Calendar, show: true },
@@ -43,13 +55,23 @@ const Navbar = () => {
             );
           })}
           <ThemeToggle />
-          <Link
-            to="/sign-in"
-            className="ml-2 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            <LogIn className="h-4 w-4" />
-            Sign In
-          </Link>
+          {isSignedIn && signOut ? (
+            <button
+              onClick={() => signOut({ redirectUrl: "/" })}
+              className="ml-2 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </button>
+          ) : (
+            <Link
+              to="/sign-in"
+              className="ml-2 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </Link>
+          )}
         </nav>
       </div>
     </header>
