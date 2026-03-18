@@ -234,7 +234,7 @@ const EditBookingDialog = ({ booking, open, onOpenChange }: EditBookingDialogPro
           </div>
 
           <DialogFooter className="flex !justify-between gap-2">
-            <Button
+            {/* <Button
               type="button"
               variant="destructive"
               onClick={handleDelete}
@@ -243,7 +243,7 @@ const EditBookingDialog = ({ booking, open, onOpenChange }: EditBookingDialogPro
             >
               <Trash2 className="h-4 w-4" />
               {confirmDelete ? "Confirm Delete" : "Delete"}
-            </Button>
+            </Button> */}
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
