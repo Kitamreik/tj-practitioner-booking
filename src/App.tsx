@@ -13,6 +13,7 @@ import FellowsPage from "./pages/FellowsPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import NotFound from "./pages/NotFound";
+import ReservationsPage from "./pages/ReservationsPage";
 
 const queryClient = new QueryClient();
 
