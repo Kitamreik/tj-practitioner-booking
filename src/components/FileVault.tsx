@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Image, Link2, Eye, EyeOff, Trash2, Plus, X } from "lucide-react";
+import { FileText, Image, Link2, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -26,36 +26,13 @@ const FileVault = () => {
     { id: "v2", name: "Clinic Logo", type: "image", url: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&q=80", addedAt: "2026-03-12" },
     { id: "v3", name: "Booking Guidelines", type: "link", url: "https://example.com/guidelines", addedAt: "2026-03-14" },
   ]);
-  const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const [previewFile, setPreviewFile] = useState<VaultFile | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [newFile, setNewFile] = useState({ name: "", type: "link" as VaultFile["type"], url: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const toggleReveal = (id: string) => {
-    setRevealed((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handlePreview = (file: VaultFile) => {
-    if (!revealed.has(file.id)) {
-      toggleReveal(file.id);
-      return;
-    }
-    setPreviewFile(file);
-  };
-
   const handleDelete = (id: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
-    setRevealed((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
   };
 
   const validateAdd = () => {
@@ -105,7 +82,7 @@ const FileVault = () => {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="font-heading text-xl font-bold text-foreground">File Vault</h2>
-          <p className="text-sm text-muted-foreground">Click a file to reveal, click again to preview</p>
+          <p className="text-sm text-muted-foreground">Click a file to preview it</p>
         </div>
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger asChild>
@@ -157,25 +134,14 @@ const FileVault = () => {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {files.map((file) => {
-          const isRevealed = revealed.has(file.id);
           const Icon = ICON_MAP[file.type];
           return (
             <div
               key={file.id}
               className="group relative overflow-hidden rounded-xl border bg-card transition-all hover:shadow-md"
             >
-              {/* Obscured overlay */}
-              {!isRevealed && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted/80 backdrop-blur-md">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <EyeOff className="h-8 w-8" />
-                    <span className="text-xs font-medium">Click to reveal</span>
-                  </div>
-                </div>
-              )}
-
               <button
-                onClick={() => handlePreview(file)}
+                onClick={() => setPreviewFile(file)}
                 className="w-full p-4 text-left"
               >
                 <div className="flex items-start gap-3">
@@ -189,16 +155,11 @@ const FileVault = () => {
                 </div>
               </button>
 
-              {isRevealed && (
-                <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button onClick={() => toggleReveal(file.id)} className="rounded-md bg-card p-1.5 shadow-sm hover:bg-accent">
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                  </button>
-                  <button onClick={() => handleDelete(file.id)} className="rounded-md bg-card p-1.5 shadow-sm hover:bg-destructive/10">
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                  </button>
-                </div>
-              )}
+              <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button onClick={() => handleDelete(file.id)} className="rounded-md bg-card p-1.5 shadow-sm hover:bg-destructive/10">
+                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                </button>
+              </div>
             </div>
           );
         })}
