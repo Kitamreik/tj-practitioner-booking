@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateBooking } from "@/hooks/useBookings";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDays, CheckCircle } from "lucide-react";
+import { CalendarDays, CheckCircle, ArrowRight } from "lucide-react";
 
 const services = [
   "Organizational Systems Work",
@@ -216,10 +217,17 @@ const ReservationsPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-
+            <div className="mt-10 flex items-center justify-center gap-4">
+            <Link
+              to="/api/bookings/create"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-heading text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
+            >
               <Button type="submit" className="w-full" disabled={createBooking.isPending}>
                 {createBooking.isPending ? "Submitting..." : "Submit Reservation"}
               </Button>
+              <ArrowRight className="h-4 w-4" />
+              </Link>          
+              </div>
             </form>
           </CardContent>
         </Card>

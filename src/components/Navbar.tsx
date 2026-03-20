@@ -29,8 +29,8 @@ const Navbar = () => {
     { to: "/", label: "Home", icon: HouseIcon, show: true },
     { to: "/reservations", label: "Reservations", icon: BookOpen, show: true },
     { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: true },
-    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isFellow },
-    { to: "/fellows", label: "Fellows", icon: GraduationCap, show: true },
+    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: false },
+    { to: "/fellows", label: "Fellows", icon: GraduationCap, show: false },
   ].filter((item) => item.show);
 
   const NavItems = ({ onClick }: { onClick?: () => void }) => (
