@@ -30,7 +30,7 @@ const Navbar = () => {
     { to: "/reservations", label: "Reservations", icon: BookOpen, show: true },
     { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: true },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: false },
-    { to: "/fellows", label: "Fellows", icon: GraduationCap, show: false },
+    { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
   ].filter((item) => item.show);
 
   const NavItems = ({ onClick }: { onClick?: () => void }) => (
