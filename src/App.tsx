@@ -14,6 +14,7 @@ import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import NotFound from "./pages/NotFound";
 import ReservationsPage from "./pages/ReservationsPage";
+import SSOCallbackPage from "./pages/SSOCallbackPage";
 
 const queryClient = new QueryClient();
 
