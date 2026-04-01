@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen } from "lucide-react";
+import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen, Shield } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -20,7 +20,7 @@ function useClerkAuth() {
 
 const Navbar = () => {
   const location = useLocation();
-  const { isAdmin, isFellow } = useRole();
+  const { isAdmin, isFellow, isWebmaster } = useRole();
   const { isSignedIn, signOut } = useClerkAuth();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
@@ -31,6 +31,7 @@ const Navbar = () => {
     { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: true },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: false },
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
+    { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);
 
   const NavItems = ({ onClick }: { onClick?: () => void }) => (

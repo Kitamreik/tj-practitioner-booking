@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FileText, Image, Link2, Trash2, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,15 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-export interface FellowFile {
-  id: string;
-  name: string;
-  type: "image" | "pdf" | "link";
-  url: string;
-  addedAt: string;
-  bookingId: string;
-}
+import { filesApi, type BookingFile } from "@/lib/api";
 
 const ICON_MAP = { image: Image, pdf: FileText, link: Link2 };
 
@@ -22,7 +14,7 @@ function getStorageKey(bookingId: string) {
   return `fellow-files-${bookingId}`;
 }
 
-function loadFiles(bookingId: string): FellowFile[] {
+function loadLocal(bookingId: string): BookingFile[] {
   try {
     const raw = localStorage.getItem(getStorageKey(bookingId));
     return raw ? JSON.parse(raw) : [];
@@ -31,7 +23,7 @@ function loadFiles(bookingId: string): FellowFile[] {
   }
 }
 
-function saveFiles(bookingId: string, files: FellowFile[]) {
+function saveLocal(bookingId: string, files: BookingFile[]) {
   localStorage.setItem(getStorageKey(bookingId), JSON.stringify(files));
 }
 
@@ -42,33 +34,48 @@ interface FellowFileVaultProps {
 }
 
 const FellowFileVault = ({ bookingId, canAdd = true, canDelete = false }: FellowFileVaultProps) => {
-  const [files, setFiles] = useState<FellowFile[]>(() => loadFiles(bookingId));
+  const [files, setFiles] = useState<BookingFile[]>([]);
   const [addOpen, setAddOpen] = useState(false);
-  const [previewFile, setPreviewFile] = useState<FellowFile | null>(null);
-  const [newFile, setNewFile] = useState({ name: "", type: "link" as FellowFile["type"], url: "" });
+  const [previewFile, setPreviewFile] = useState<BookingFile | null>(null);
+  const [newFile, setNewFile] = useState({ name: "", type: "link" as BookingFile["type"], url: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [usingLocal, setUsingLocal] = useState(false);
 
-  useEffect(() => {
-    setFiles(loadFiles(bookingId));
+  const fetchFiles = useCallback(async () => {
+    try {
+      const data = await filesApi.getByBooking(bookingId);
+      setFiles(data);
+      setUsingLocal(false);
+    } catch {
+      setFiles(loadLocal(bookingId));
+      setUsingLocal(true);
+    }
   }, [bookingId]);
 
-  const persist = (updated: FellowFile[]) => {
+  useEffect(() => {
+    fetchFiles();
+  }, [fetchFiles]);
+
+  const persist = (updated: BookingFile[]) => {
     setFiles(updated);
-    saveFiles(bookingId, updated);
+    if (usingLocal) saveLocal(bookingId, updated);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    try {
+      if (!usingLocal) await filesApi.delete(id);
+    } catch { /* fall through */ }
     persist(files.filter((f) => f.id !== id));
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
     const isImage = file.type.startsWith("image/");
     const isPdf = file.type === "application/pdf";
     const type = isImage ? "image" : isPdf ? "pdf" : "link";
-    const newEntry: FellowFile = {
+    const entry: BookingFile = {
       id: crypto.randomUUID(),
       name: file.name,
       type,
@@ -76,7 +83,16 @@ const FellowFileVault = ({ bookingId, canAdd = true, canDelete = false }: Fellow
       addedAt: new Date().toISOString().split("T")[0],
       bookingId,
     };
-    persist([newEntry, ...files]);
+    try {
+      if (!usingLocal) {
+        const created = await filesApi.create(entry);
+        setFiles((prev) => [created, ...prev]);
+      } else {
+        persist([entry, ...files]);
+      }
+    } catch {
+      persist([entry, ...files]);
+    }
     setAddOpen(false);
   };
 
@@ -89,9 +105,9 @@ const FellowFileVault = ({ bookingId, canAdd = true, canDelete = false }: Fellow
     return Object.keys(errs).length === 0;
   };
 
-  const handleAddLink = () => {
+  const handleAddLink = async () => {
     if (!validateAdd()) return;
-    const entry: FellowFile = {
+    const entry: BookingFile = {
       id: crypto.randomUUID(),
       name: newFile.name.trim(),
       type: newFile.type,
@@ -99,13 +115,22 @@ const FellowFileVault = ({ bookingId, canAdd = true, canDelete = false }: Fellow
       addedAt: new Date().toISOString().split("T")[0],
       bookingId,
     };
-    persist([entry, ...files]);
+    try {
+      if (!usingLocal) {
+        const created = await filesApi.create(entry);
+        setFiles((prev) => [created, ...prev]);
+      } else {
+        persist([entry, ...files]);
+      }
+    } catch {
+      persist([entry, ...files]);
+    }
     setNewFile({ name: "", type: "link", url: "" });
     setErrors({});
     setAddOpen(false);
   };
 
-  const renderPreview = (file: FellowFile) => {
+  const renderPreview = (file: BookingFile) => {
     switch (file.type) {
       case "image":
         return <img src={file.url} alt={file.name} className="max-h-[70vh] w-full rounded-lg object-contain" />;
@@ -166,7 +191,7 @@ const FellowFileVault = ({ bookingId, canAdd = true, canDelete = false }: Fellow
                   </div>
                   <div className="space-y-2">
                     <Label>Type</Label>
-                    <Select value={newFile.type} onValueChange={(v) => setNewFile((p) => ({ ...p, type: v as FellowFile["type"] }))}>
+                    <Select value={newFile.type} onValueChange={(v) => setNewFile((p) => ({ ...p, type: v as BookingFile["type"] }))}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="image">Image</SelectItem>

@@ -1,14 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MessageSquare, Pencil, Trash2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-
-export interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: string;
-}
+import { commentsApi, type BookingComment } from "@/lib/api";
 
 interface BookingCommentsProps {
   bookingId: string;
@@ -19,7 +13,7 @@ function getStorageKey(bookingId: string) {
   return `booking-comments-${bookingId}`;
 }
 
-function loadComments(bookingId: string): Comment[] {
+function loadLocal(bookingId: string): BookingComment[] {
   try {
     const raw = localStorage.getItem(getStorageKey(bookingId));
     return raw ? JSON.parse(raw) : [];
@@ -28,48 +22,72 @@ function loadComments(bookingId: string): Comment[] {
   }
 }
 
-function saveComments(bookingId: string, comments: Comment[]) {
+function saveLocal(bookingId: string, comments: BookingComment[]) {
   localStorage.setItem(getStorageKey(bookingId), JSON.stringify(comments));
 }
 
 const BookingComments = ({ bookingId, canEdit = true }: BookingCommentsProps) => {
-  const [comments, setComments] = useState<Comment[]>(() => loadComments(bookingId));
+  const [comments, setComments] = useState<BookingComment[]>([]);
   const [newText, setNewText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [usingLocal, setUsingLocal] = useState(false);
 
-  useEffect(() => {
-    setComments(loadComments(bookingId));
+  const fetchComments = useCallback(async () => {
+    try {
+      const data = await commentsApi.getByBooking(bookingId);
+      setComments(data);
+      setUsingLocal(false);
+    } catch {
+      setComments(loadLocal(bookingId));
+      setUsingLocal(true);
+    }
   }, [bookingId]);
 
-  const persist = (updated: Comment[]) => {
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  const persist = (updated: BookingComment[]) => {
     setComments(updated);
-    saveComments(bookingId, updated);
+    if (usingLocal) saveLocal(bookingId, updated);
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!newText.trim()) return;
-    const comment: Comment = {
-      id: crypto.randomUUID(),
-      text: newText.trim(),
-      author: "You",
-      createdAt: new Date().toISOString(),
-    };
-    persist([comment, ...comments]);
+    const commentData = { text: newText.trim(), author: "You", bookingId };
+    try {
+      if (!usingLocal) {
+        const created = await commentsApi.create(commentData);
+        setComments((prev) => [created, ...prev]);
+      } else {
+        const local: BookingComment = { ...commentData, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+        persist([local, ...comments]);
+      }
+    } catch {
+      const local: BookingComment = { ...commentData, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+      persist([local, ...comments]);
+    }
     setNewText("");
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    try {
+      if (!usingLocal) await commentsApi.delete(id);
+    } catch { /* fall through */ }
     persist(comments.filter((c) => c.id !== id));
   };
 
-  const startEdit = (c: Comment) => {
+  const startEdit = (c: BookingComment) => {
     setEditingId(c.id);
     setEditText(c.text);
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editText.trim() || !editingId) return;
+    try {
+      if (!usingLocal) await commentsApi.update(editingId, { text: editText.trim() });
+    } catch { /* fall through */ }
     persist(comments.map((c) => (c.id === editingId ? { ...c, text: editText.trim() } : c)));
     setEditingId(null);
     setEditText("");
