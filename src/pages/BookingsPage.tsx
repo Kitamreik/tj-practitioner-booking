@@ -84,6 +84,7 @@ const BookingsPage = () => {
                 key={booking.id}
                 booking={booking}
                 showActions
+                viewMode="fellow"
                 onEdit={(id) => {
                   const b = bookings.find((x) => x.id === id);
                   if (b) setEditBooking(b);

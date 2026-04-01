@@ -59,3 +59,70 @@ export const bookingsApi = {
       { token }
     ),
 };
+
+// --- File Vault API (per-booking files) ---
+export interface BookingFile {
+  id: string;
+  name: string;
+  type: "image" | "pdf" | "link";
+  url: string;
+  addedAt: string;
+  bookingId: string;
+}
+
+export const filesApi = {
+  getByBooking: (bookingId: string, token?: string): Promise<BookingFile[]> =>
+    apiFetch<BookingFile[]>(`/api/files/${bookingId}`, {}, { token }),
+
+  create: (data: Partial<BookingFile>, token?: string): Promise<BookingFile> =>
+    apiFetch<BookingFile>("/api/files/create", { method: "POST", body: JSON.stringify(data) }, { token }),
+
+  delete: (id: string, token?: string): Promise<void> =>
+    apiFetch<void>(`/api/files/delete/${id}`, { method: "DELETE" }, { token }),
+};
+
+// --- Comments API (per-booking comments) ---
+export interface BookingComment {
+  id: string;
+  text: string;
+  author: string;
+  bookingId: string;
+  createdAt: string;
+}
+
+export const commentsApi = {
+  getByBooking: (bookingId: string, token?: string): Promise<BookingComment[]> =>
+    apiFetch<BookingComment[]>(`/api/comments/${bookingId}`, {}, { token }),
+
+  create: (data: Partial<BookingComment>, token?: string): Promise<BookingComment> =>
+    apiFetch<BookingComment>("/api/comments/create", { method: "POST", body: JSON.stringify(data) }, { token }),
+
+  update: (id: string, data: Partial<BookingComment>, token?: string): Promise<BookingComment> =>
+    apiFetch<BookingComment>(`/api/comments/update/${id}`, { method: "PUT", body: JSON.stringify(data) }, { token }),
+
+  delete: (id: string, token?: string): Promise<void> =>
+    apiFetch<void>(`/api/comments/delete/${id}`, { method: "DELETE" }, { token }),
+};
+
+// --- User Management API (webmaster only) ---
+export interface AppUser {
+  id: string;
+  email: string;
+  name: string;
+  role: "admin" | "fellow" | "webmaster";
+  createdAt: string;
+}
+
+export const usersApi = {
+  getAll: (token?: string): Promise<AppUser[]> =>
+    apiFetch<AppUser[]>("/api/users/", {}, { token }),
+
+  update: (id: string, data: Partial<AppUser>, token?: string): Promise<AppUser> =>
+    apiFetch<AppUser>(`/api/users/update/${id}`, { method: "PUT", body: JSON.stringify(data) }, { token }),
+
+  delete: (id: string, token?: string): Promise<void> =>
+    apiFetch<void>(`/api/users/delete/${id}`, { method: "DELETE" }, { token }),
+
+  sendPasswordReset: (email: string, token?: string): Promise<void> =>
+    apiFetch<void>("/api/users/reset-password", { method: "POST", body: JSON.stringify({ email }) }, { token }),
+};
