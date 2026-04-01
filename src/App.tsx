@@ -52,6 +52,7 @@ const AppContent = () => (
           /> */}
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/sso-callback" element={<SSOCallbackPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

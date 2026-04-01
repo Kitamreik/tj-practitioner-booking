@@ -103,6 +103,7 @@ const AdminPage = () => {
                 key={booking.id}
                 booking={booking}
                 showActions
+                viewMode="admin"
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />

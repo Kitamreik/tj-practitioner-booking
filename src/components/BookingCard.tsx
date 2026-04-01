@@ -3,12 +3,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Clock, User } from "lucide-react";
 import type { Booking } from "@/lib/mockData";
 import BookingChecklist from "@/components/BookingChecklist";
+import BookingComments from "@/components/BookingComments";
+import FellowFileVault from "@/components/FellowFileVault";
 
 interface BookingCardProps {
   booking: Booking;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   showActions?: boolean;
+  /** "admin" shows delete on files, read-only comments add; "fellow" shows add on files, editable comments */
+  viewMode?: "admin" | "fellow";
 }
 
 const statusStyles: Record<string, string> = {
@@ -17,7 +21,7 @@ const statusStyles: Record<string, string> = {
   cancelled: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
-const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: BookingCardProps) => {
+const BookingCard = ({ booking, onEdit, onDelete, showActions = false, viewMode }: BookingCardProps) => {
   const date = new Date(booking.booking_time);
 
   return (
@@ -60,6 +64,10 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
             </p>
           </div>
         </div>
+
+        {/* Comments - above edit button */}
+        {viewMode && <BookingComments bookingId={booking.id} canEdit={viewMode === "fellow" || viewMode === "admin"} />}
+
         {showActions && (
           <div className="mt-4 flex gap-2 border-t pt-3">
             <button
@@ -68,15 +76,18 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false }: Booking
             >
               Edit
             </button>
-            {/* <button
-              onClick={() => onDelete?.(booking.id)}
-              className="rounded-md bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
-            >
-              Delete
-            </button> */}
           </div>
         )}
         {showActions && <BookingChecklist bookingId={booking.id} />}
+
+        {/* Fellow File Vault */}
+        {viewMode && (
+          <FellowFileVault
+            bookingId={booking.id}
+            canAdd={viewMode === "fellow"}
+            canDelete={viewMode === "admin"}
+          />
+        )}
       </CardContent>
     </Card>
   );
