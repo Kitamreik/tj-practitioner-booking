@@ -46,7 +46,14 @@ const SignInPage = () => {
     if (signInWithForm) {
       signInWithForm(e);
     } else {
-      toast.info("Authentication is not yet connected. This is a UI demo.");
+      // Local fallback — store auth state in localStorage
+      if (!email || !password) {
+        toast.error("Please enter email and password.");
+        return;
+      }
+      localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true }));
+      toast.success("Signed in locally (demo mode).");
+      window.location.href = "/";
     }
   };
 
@@ -54,7 +61,7 @@ const SignInPage = () => {
     if (signInWithGoogle) {
       signInWithGoogle();
     } else {
-      toast.info("Authentication is not yet connected. This is a UI demo.");
+      toast.info("Google OAuth requires Clerk to be configured.");
     }
   };
 

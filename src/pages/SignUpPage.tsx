@@ -51,7 +51,14 @@ const SignUpPage = () => {
     if (signUpWithForm) {
       signUpWithForm(e);
     } else {
-      toast.info("Authentication is not yet connected. This is a UI demo.");
+      // Local fallback
+      if (!name || !email || !password) {
+        toast.error("Please fill in all fields.");
+        return;
+      }
+      localStorage.setItem("local-auth", JSON.stringify({ email, name, signedIn: true }));
+      toast.success("Account created locally (demo mode).");
+      window.location.href = "/";
     }
   };
 
@@ -59,7 +66,7 @@ const SignUpPage = () => {
     if (signUpWithGoogle) {
       signUpWithGoogle();
     } else {
-      toast.info("Authentication is not yet connected. This is a UI demo.");
+      toast.info("Google OAuth requires Clerk to be configured.");
     }
   };
 

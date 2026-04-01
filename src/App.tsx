@@ -14,6 +14,7 @@ import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import NotFound from "./pages/NotFound";
 import ReservationsPage from "./pages/ReservationsPage";
+import SSOCallbackPage from "./pages/SSOCallbackPage";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const AppContent = () => (
           /> */}
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/sso-callback" element={<SSOCallbackPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
