@@ -188,7 +188,7 @@ const WebmasterPage = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => { setEditUser(user); setEditName(user.name); }}
+                    onClick={() => { setEditUser(user); setEditName(user.name); setEditEmail(user.email); }}
                     className="gap-1"
                   >
                     <Pencil className="h-3.5 w-3.5" /> Edit
