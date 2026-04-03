@@ -27,11 +27,11 @@ const Navbar = () => {
 
   const navItems = [
     { to: "/", label: "Home", icon: HouseIcon, show: true },
-    { to: "/reservations", label: "Reservations", icon: BookOpen, show: true },
-    { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: true },
-    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: false },
+    { to: "/reservations", label: "Reservations", icon: BookOpen, show: false },
+    { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: isFellow },
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
-    { to: "/practicum", label: "Practicum", icon: ClipboardList, show: true },
+    { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isWebmaster || isAdmin },
+    { to: "/practicum", label: "Practicum", icon: ClipboardList, show: isFellow },
     { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);
 
