@@ -52,6 +52,7 @@ const AppContent = () => (
               </RoleGuard>
             }
           /> */}
+          <Route path="/practicum" element={<PracticumPage />} />
           <Route path="/webmaster" element={<WebmasterPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />

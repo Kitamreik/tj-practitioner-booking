@@ -31,6 +31,7 @@ const Navbar = () => {
     { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: true },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: false },
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
+    { to: "/practicum", label: "Practicum", icon: ClipboardList, show: true },
     { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);
 
