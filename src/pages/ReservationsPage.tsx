@@ -217,17 +217,12 @@ const ReservationsPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-            <div className="mt-10 flex items-center justify-center gap-4">
-            <Link
-              to="/api/bookings/create"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-heading text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
-            >
-              <Button type="submit" className="w-full" disabled={createBooking.isPending}>
+            <div className="mt-6">
+              <Button type="submit" className="w-full gap-2" disabled={createBooking.isPending}>
                 {createBooking.isPending ? "Submitting..." : "Submit Reservation"}
+                <ArrowRight className="h-4 w-4" />
               </Button>
-              <ArrowRight className="h-4 w-4" />
-              </Link>          
-              </div>
+            </div>
             </form>
           </CardContent>
         </Card>
