@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import ReservationsPage from "./pages/ReservationsPage";
 import SSOCallbackPage from "./pages/SSOCallbackPage";
 import WebmasterPage from "./pages/WebmasterPage";
+import PracticumPage from "./pages/PracticumPage";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const AppContent = () => (
               </RoleGuard>
             }
           /> */}
+          <Route path="/practicum" element={<PracticumPage />} />
           <Route path="/webmaster" element={<WebmasterPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />

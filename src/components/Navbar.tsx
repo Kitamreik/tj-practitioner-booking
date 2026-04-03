@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen, Shield } from "lucide-react";
+import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen, Shield, ClipboardList } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -31,6 +31,7 @@ const Navbar = () => {
     { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: true },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: false },
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
+    { to: "/practicum", label: "Practicum", icon: ClipboardList, show: true },
     { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);
 
