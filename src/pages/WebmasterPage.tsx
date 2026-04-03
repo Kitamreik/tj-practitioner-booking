@@ -73,14 +73,15 @@ const WebmasterPage = () => {
   );
 
   const handleEditSave = async () => {
-    if (!editUser || !editName.trim()) return;
+    if (!editUser || !editName.trim() || !editEmail.trim()) return;
+    const updates: Partial<AppUser> = { name: editName.trim(), email: editEmail.trim() };
     try {
-      await usersApi.update(editUser.id, { name: editName.trim() });
-      toast.success(`Updated name for ${editUser.email}`);
+      await usersApi.update(editUser.id, updates);
+      toast.success(`Updated ${editUser.email}`);
     } catch {
       toast.info("Backend unavailable — updated locally.");
     }
-    setUsers((prev) => prev.map((u) => (u.id === editUser.id ? { ...u, name: editName.trim() } : u)));
+    setUsers((prev) => prev.map((u) => (u.id === editUser.id ? { ...u, ...updates } : u)));
     setEditUser(null);
   };
 
