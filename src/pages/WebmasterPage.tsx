@@ -36,6 +36,7 @@ const WebmasterPage = () => {
   const [search, setSearch] = useState("");
   const [editUser, setEditUser] = useState<AppUser | null>(null);
   const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [deleteUser, setDeleteUser] = useState<AppUser | null>(null);
   const [resetEmail, setResetEmail] = useState<AppUser | null>(null);
 
