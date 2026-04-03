@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import ReservationsPage from "./pages/ReservationsPage";
 import SSOCallbackPage from "./pages/SSOCallbackPage";
 import WebmasterPage from "./pages/WebmasterPage";
+import PracticumPage from "./pages/PracticumPage";
 
 const queryClient = new QueryClient();
 
