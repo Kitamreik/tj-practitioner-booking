@@ -36,6 +36,7 @@ const WebmasterPage = () => {
   const [search, setSearch] = useState("");
   const [editUser, setEditUser] = useState<AppUser | null>(null);
   const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [deleteUser, setDeleteUser] = useState<AppUser | null>(null);
   const [resetEmail, setResetEmail] = useState<AppUser | null>(null);
 
@@ -72,14 +73,15 @@ const WebmasterPage = () => {
   );
 
   const handleEditSave = async () => {
-    if (!editUser || !editName.trim()) return;
+    if (!editUser || !editName.trim() || !editEmail.trim()) return;
+    const updates: Partial<AppUser> = { name: editName.trim(), email: editEmail.trim() };
     try {
-      await usersApi.update(editUser.id, { name: editName.trim() });
-      toast.success(`Updated name for ${editUser.email}`);
+      await usersApi.update(editUser.id, updates);
+      toast.success(`Updated ${editUser.email}`);
     } catch {
       toast.info("Backend unavailable — updated locally.");
     }
-    setUsers((prev) => prev.map((u) => (u.id === editUser.id ? { ...u, name: editName.trim() } : u)));
+    setUsers((prev) => prev.map((u) => (u.id === editUser.id ? { ...u, ...updates } : u)));
     setEditUser(null);
   };
 
@@ -186,7 +188,7 @@ const WebmasterPage = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => { setEditUser(user); setEditName(user.name); }}
+                    onClick={() => { setEditUser(user); setEditName(user.name); setEditEmail(user.email); }}
                     className="gap-1"
                   >
                     <Pencil className="h-3.5 w-3.5" /> Edit
@@ -229,12 +231,12 @@ const WebmasterPage = () => {
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Email</label>
-              <p className="text-sm text-muted-foreground">{editUser?.email}</p>
-            </div>
-            <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Name</label>
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Email</label>
+              <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} type="email" />
             </div>
           </div>
           <DialogFooter>
