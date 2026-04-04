@@ -12,10 +12,24 @@ export type AppRole = "admin" | "fellow" | "webmaster";
 export function useRole(): { role: AppRole; isAdmin: boolean; isFellow: boolean; isWebmaster: boolean; isLoaded: boolean } {
   try {
     const { user, isLoaded } = useUser();
-    const role = (user?.publicMetadata?.role as AppRole) || "fellow";
-    return { role, isAdmin: role === "admin", isFellow: role === "fellow", isWebmaster: role === "webmaster", isLoaded };
+    if (user) {
+      const role = (user?.publicMetadata?.role as AppRole) || "fellow";
+      return { role, isAdmin: role === "admin", isFellow: role === "fellow", isWebmaster: role === "webmaster", isLoaded };
+    }
+    // Check local-auth fallback
+    const local = JSON.parse(localStorage.getItem("local-auth") || "{}");
+    if (local.signedIn && local.role) {
+      const role = local.role as AppRole;
+      return { role, isAdmin: role === "admin", isFellow: role === "fellow", isWebmaster: role === "webmaster", isLoaded: true };
+    }
+    return { role: "fellow", isAdmin: false, isFellow: true, isWebmaster: false, isLoaded };
   } catch {
-    // Clerk not configured — default to admin for development
+    // Clerk not configured — check local-auth
+    const local = JSON.parse(localStorage.getItem("local-auth") || "{}");
+    if (local.signedIn && local.role) {
+      const role = local.role as AppRole;
+      return { role, isAdmin: role === "admin", isFellow: role === "fellow", isWebmaster: role === "webmaster", isLoaded: true };
+    }
     return { role: "admin", isAdmin: true, isFellow: false, isWebmaster: false, isLoaded: true };
   }
 }

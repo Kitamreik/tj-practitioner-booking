@@ -281,6 +281,9 @@ const WebmasterPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Login Attempt Monitor */}
+      <LoginMonitor />
     </div>
   );
 };
