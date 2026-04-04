@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Mail, Lock, ArrowRight } from "lucide-react";
+import { Calendar, Mail, Lock, ArrowRight, GraduationCap, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useSignIn } from "@clerk/clerk-react";
 import { logLoginAttempt } from "@/components/LoginMonitor";
