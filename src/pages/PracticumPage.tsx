@@ -288,6 +288,8 @@ const PracticumPage = () => {
                 )}
               </div>
             )}
+
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               {/* Personal Info */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
