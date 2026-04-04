@@ -251,7 +251,43 @@ const PracticumPage = () => {
             <CardDescription>All fields marked with * are required.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+            {/* Returning client checkbox */}
+            <div className="mb-6 flex items-center gap-2 rounded-lg border bg-muted/50 p-3">
+              <Checkbox
+                id="returning"
+                checked={isReturning}
+                onCheckedChange={(checked) => setIsReturning(!!checked)}
+              />
+              <Label htmlFor="returning" className="cursor-pointer text-sm font-medium">
+                I am a returning client
+              </Label>
+            </div>
+
+            {isReturning && (
+              <div className="mb-6 space-y-2">
+                <Label className="flex items-center gap-1"><Search className="h-3.5 w-3.5" /> Search by name</Label>
+                <Input
+                  value={clientSearch}
+                  onChange={(e) => setClientSearch(e.target.value)}
+                  placeholder="Start typing your name..."
+                />
+                {matchingClients.length > 0 && (
+                  <div className="rounded-lg border bg-card p-1">
+                    {matchingClients.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => prefillFromRecord(c)}
+                        className="w-full rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
+                      >
+                        <span className="font-medium text-foreground">{c.fullName}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{c.email}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
               {/* Personal Info */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
