@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Mail, Lock, ArrowRight } from "lucide-react";
+import { Calendar, Mail, Lock, ArrowRight, GraduationCap, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useSignIn } from "@clerk/clerk-react";
 import { logLoginAttempt } from "@/components/LoginMonitor";
@@ -47,6 +47,12 @@ const SignInPage = () => {
     // Clerk not available
   }
 
+  const DEMO_ACCOUNTS: Record<string, { name: string; role: string; password: string }> = {
+    "student@bookflow.demo": { name: "Demo Student", role: "fellow", password: "student123" },
+    "admin@bookflow.demo": { name: "Demo Admin", role: "admin", password: "admin123" },
+    "webmaster@bookflow.demo": { name: "Demo Webmaster", role: "webmaster", password: "webmaster123" },
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (signInWithForm) {
@@ -56,11 +62,33 @@ const SignInPage = () => {
         toast.error("Please enter email and password.");
         return;
       }
-      localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true }));
+      const demo = DEMO_ACCOUNTS[email.toLowerCase()];
+      if (demo) {
+        if (password !== demo.password) {
+          logLoginAttempt({ email, method: "local", success: false });
+          toast.error("Invalid password.");
+          return;
+        }
+        localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
+        logLoginAttempt({ email, method: "local", success: true });
+        toast.success(`Signed in as ${demo.name} (${demo.role}).`);
+        window.location.href = "/";
+        return;
+      }
+      // Default local sign-in as fellow
+      localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true, role: "fellow" }));
       logLoginAttempt({ email, method: "local", success: true });
       toast.success("Signed in locally (demo mode).");
       window.location.href = "/";
     }
+  };
+
+  const handleDemoLogin = (email: string) => {
+    const demo = DEMO_ACCOUNTS[email];
+    localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
+    logLoginAttempt({ email, method: "local", success: true });
+    toast.success(`Signed in as ${demo.name} (${demo.role}).`);
+    window.location.href = "/";
   };
 
   const handleGoogle = () => {
@@ -132,7 +160,26 @@ const SignInPage = () => {
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+
+          <div className="mt-6 border-t pt-4">
+            <p className="mb-3 text-center text-xs font-medium text-muted-foreground">Quick Demo Login</p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handleDemoLogin("student@bookflow.demo")}
+                className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+              >
+                <GraduationCap className="h-4 w-4" /> Sign in as Student
+              </button>
+              <button
+                onClick={() => handleDemoLogin("admin@bookflow.demo")}
+                className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-muted-foreground/20 bg-muted/50 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+              >
+                <Shield className="h-4 w-4" /> Sign in as Admin
+              </button>
+            </div>
+          </div>
+
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link to="/sign-up" className="font-medium text-primary hover:underline">
               Sign up
