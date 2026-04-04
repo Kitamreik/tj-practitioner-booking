@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import BookingCard from "@/components/BookingCard";
 import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
+import IntakeRecordsViewer from "@/components/IntakeRecordsViewer";
 import { useBookings } from "@/hooks/useBookings";
 import { Loader2 } from "lucide-react";
 
