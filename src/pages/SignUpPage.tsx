@@ -111,6 +111,34 @@ const SignUpPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Account type selection */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-foreground">I am a...</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAccountType("student")}
+                  className={`flex items-center justify-center gap-2 rounded-lg border p-3 text-sm font-medium transition-colors ${
+                    accountType === "student"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <GraduationCap className="h-4 w-4" /> Student
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType("admin")}
+                  className={`flex items-center justify-center gap-2 rounded-lg border p-3 text-sm font-medium transition-colors ${
+                    accountType === "admin"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <Shield className="h-4 w-4" /> Admin
+                </button>
+              </div>
+            </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">Full Name</label>
               <div className="relative">

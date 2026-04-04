@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Calendar, Mail, Lock, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useSignIn } from "@clerk/clerk-react";
+import { logLoginAttempt } from "@/components/LoginMonitor";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -23,6 +24,7 @@ const SignInPage = () => {
   try {
     const { signIn } = useSignIn();
     signInWithGoogle = () => {
+      logLoginAttempt({ email: email || "google-oauth", method: "google", success: true });
       signIn?.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
@@ -33,9 +35,13 @@ const SignInPage = () => {
       e.preventDefault();
       signIn?.create({ identifier: email, password }).then((result) => {
         if (result.status === "complete") {
+          logLoginAttempt({ email, method: "local", success: true });
           window.location.href = "/";
         }
-      }).catch(() => toast.error("Invalid email or password."));
+      }).catch(() => {
+        logLoginAttempt({ email, method: "local", success: false });
+        toast.error("Invalid email or password.");
+      });
     };
   } catch {
     // Clerk not available
@@ -46,12 +52,12 @@ const SignInPage = () => {
     if (signInWithForm) {
       signInWithForm(e);
     } else {
-      // Local fallback — store auth state in localStorage
       if (!email || !password) {
         toast.error("Please enter email and password.");
         return;
       }
       localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true }));
+      logLoginAttempt({ email, method: "local", success: true });
       toast.success("Signed in locally (demo mode).");
       window.location.href = "/";
     }
