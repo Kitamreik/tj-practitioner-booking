@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Calendar, Mail, Lock, User, ArrowRight, GraduationCap, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useSignUp } from "@clerk/clerk-react";
+import { logLoginAttempt } from "@/components/LoginMonitor";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -13,10 +14,13 @@ const GoogleIcon = () => (
   </svg>
 );
 
+type AccountType = "student" | "admin" | null;
+
 const SignUpPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [accountType, setAccountType] = useState<AccountType>(null);
 
   let signUpWithGoogle: (() => void) | null = null;
   let signUpWithForm: ((e: React.FormEvent) => void) | null = null;
@@ -24,6 +28,7 @@ const SignUpPage = () => {
   try {
     const { signUp } = useSignUp();
     signUpWithGoogle = () => {
+      logLoginAttempt({ email: email || "google-oauth", method: "google", success: true });
       signUp?.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
@@ -39,8 +44,12 @@ const SignUpPage = () => {
         firstName,
         lastName: rest.join(" ") || undefined,
       }).then(() => {
+        logLoginAttempt({ email, method: "local", success: true });
         toast.success("Check your email to verify your account.");
-      }).catch((err) => toast.error(err.errors?.[0]?.message || "Sign up failed."));
+      }).catch((err) => {
+        logLoginAttempt({ email, method: "local", success: false });
+        toast.error(err.errors?.[0]?.message || "Sign up failed.");
+      });
     };
   } catch {
     // Clerk not available
@@ -48,15 +57,20 @@ const SignUpPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!accountType) {
+      toast.error("Please select an account type.");
+      return;
+    }
     if (signUpWithForm) {
       signUpWithForm(e);
     } else {
-      // Local fallback
       if (!name || !email || !password) {
         toast.error("Please fill in all fields.");
         return;
       }
-      localStorage.setItem("local-auth", JSON.stringify({ email, name, signedIn: true }));
+      const role = accountType === "student" ? "fellow" : "admin";
+      localStorage.setItem("local-auth", JSON.stringify({ email, name, signedIn: true, role }));
+      logLoginAttempt({ email, method: "local", success: true });
       toast.success("Account created locally (demo mode).");
       window.location.href = "/";
     }
@@ -97,6 +111,34 @@ const SignUpPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Account type selection */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-foreground">I am a...</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAccountType("student")}
+                  className={`flex items-center justify-center gap-2 rounded-lg border p-3 text-sm font-medium transition-colors ${
+                    accountType === "student"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <GraduationCap className="h-4 w-4" /> Student
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType("admin")}
+                  className={`flex items-center justify-center gap-2 rounded-lg border p-3 text-sm font-medium transition-colors ${
+                    accountType === "admin"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <Shield className="h-4 w-4" /> Admin
+                </button>
+              </div>
+            </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">Full Name</label>
               <div className="relative">

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCreateBooking } from "@/hooks/useBookings";
-import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle } from "lucide-react";
+import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search } from "lucide-react";
 
 const referralSources = [
   "Friend/Family",
@@ -65,7 +66,25 @@ interface FormErrors {
   concerns?: string;
 }
 
+interface PastIntake {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  service: string;
+  practitioner: string;
+  urgency: string;
+  referralSource: string;
+  concerns: string;
+  goals: string;
+}
+
 const PracticumPage = () => {
+  const [isReturning, setIsReturning] = useState(false);
+  const [clientSearch, setClientSearch] = useState("");
+  const [pastIntakes, setPastIntakes] = useState<PastIntake[]>([]);
   const [formData, setFormData] = useState<IntakeFormData>({
     firstName: "",
     lastName: "",
@@ -82,6 +101,37 @@ const PracticumPage = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const createBooking = useCreateBooking();
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
+    setPastIntakes(stored);
+  }, []);
+
+  const matchingClients = useMemo(() => {
+    if (!clientSearch.trim()) return [];
+    const q = clientSearch.toLowerCase();
+    // Deduplicate by fullName
+    const seen = new Set<string>();
+    return pastIntakes.filter((r) => {
+      if (seen.has(r.fullName)) return false;
+      seen.add(r.fullName);
+      return r.fullName.toLowerCase().includes(q);
+    }).slice(0, 5);
+  }, [clientSearch, pastIntakes]);
+
+  const prefillFromRecord = (record: PastIntake) => {
+    setFormData((prev) => ({
+      ...prev,
+      firstName: record.firstName,
+      lastName: record.lastName,
+      email: record.email,
+      phone: record.phone || "",
+      service: record.service || "",
+      practitioner: record.practitioner || "",
+      referralSource: record.referralSource || "",
+    }));
+    setClientSearch("");
+  };
 
   const updateField = (field: keyof IntakeFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -201,6 +251,44 @@ const PracticumPage = () => {
             <CardDescription>All fields marked with * are required.</CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Returning client checkbox */}
+            <div className="mb-6 flex items-center gap-2 rounded-lg border bg-muted/50 p-3">
+              <Checkbox
+                id="returning"
+                checked={isReturning}
+                onCheckedChange={(checked) => setIsReturning(!!checked)}
+              />
+              <Label htmlFor="returning" className="cursor-pointer text-sm font-medium">
+                I am a returning client
+              </Label>
+            </div>
+
+            {isReturning && (
+              <div className="mb-6 space-y-2">
+                <Label className="flex items-center gap-1"><Search className="h-3.5 w-3.5" /> Search by name</Label>
+                <Input
+                  value={clientSearch}
+                  onChange={(e) => setClientSearch(e.target.value)}
+                  placeholder="Start typing your name..."
+                />
+                {matchingClients.length > 0 && (
+                  <div className="rounded-lg border bg-card p-1">
+                    {matchingClients.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => prefillFromRecord(c)}
+                        className="w-full rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
+                      >
+                        <span className="font-medium text-foreground">{c.fullName}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{c.email}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               {/* Personal Info */}
               <div className="grid gap-4 sm:grid-cols-2">
