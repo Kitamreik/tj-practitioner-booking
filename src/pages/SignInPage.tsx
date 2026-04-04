@@ -47,6 +47,12 @@ const SignInPage = () => {
     // Clerk not available
   }
 
+  const DEMO_ACCOUNTS: Record<string, { name: string; role: string; password: string }> = {
+    "student@bookflow.demo": { name: "Demo Student", role: "fellow", password: "student123" },
+    "admin@bookflow.demo": { name: "Demo Admin", role: "admin", password: "admin123" },
+    "webmaster@bookflow.demo": { name: "Demo Webmaster", role: "webmaster", password: "webmaster123" },
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (signInWithForm) {
@@ -56,11 +62,33 @@ const SignInPage = () => {
         toast.error("Please enter email and password.");
         return;
       }
-      localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true }));
+      const demo = DEMO_ACCOUNTS[email.toLowerCase()];
+      if (demo) {
+        if (password !== demo.password) {
+          logLoginAttempt({ email, method: "local", success: false });
+          toast.error("Invalid password.");
+          return;
+        }
+        localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
+        logLoginAttempt({ email, method: "local", success: true });
+        toast.success(`Signed in as ${demo.name} (${demo.role}).`);
+        window.location.href = "/";
+        return;
+      }
+      // Default local sign-in as fellow
+      localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true, role: "fellow" }));
       logLoginAttempt({ email, method: "local", success: true });
       toast.success("Signed in locally (demo mode).");
       window.location.href = "/";
     }
+  };
+
+  const handleDemoLogin = (email: string) => {
+    const demo = DEMO_ACCOUNTS[email];
+    localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
+    logLoginAttempt({ email, method: "local", success: true });
+    toast.success(`Signed in as ${demo.name} (${demo.role}).`);
+    window.location.href = "/";
   };
 
   const handleGoogle = () => {
