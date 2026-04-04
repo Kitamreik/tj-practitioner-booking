@@ -64,6 +64,8 @@ const FellowsPage = () => {
           <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>
       )}
+
+      <IntakeRecordsViewer />
     </div>
   );
 };
