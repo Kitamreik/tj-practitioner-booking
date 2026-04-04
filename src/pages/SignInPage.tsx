@@ -160,7 +160,26 @@ const SignInPage = () => {
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+
+          <div className="mt-6 border-t pt-4">
+            <p className="mb-3 text-center text-xs font-medium text-muted-foreground">Quick Demo Login</p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handleDemoLogin("student@bookflow.demo")}
+                className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+              >
+                <GraduationCap className="h-4 w-4" /> Sign in as Student
+              </button>
+              <button
+                onClick={() => handleDemoLogin("admin@bookflow.demo")}
+                className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-muted-foreground/20 bg-muted/50 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+              >
+                <Shield className="h-4 w-4" /> Sign in as Admin
+              </button>
+            </div>
+          </div>
+
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link to="/sign-up" className="font-medium text-primary hover:underline">
               Sign up
