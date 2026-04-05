@@ -17,6 +17,7 @@ import ReservationsPage from "./pages/ReservationsPage";
 import SSOCallbackPage from "./pages/SSOCallbackPage";
 import WebmasterPage from "./pages/WebmasterPage";
 import PracticumPage from "./pages/PracticumPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const AppContent = () => (
             }
           /> */}
           <Route path="/practicum" element={<PracticumPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/webmaster" element={<WebmasterPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />

@@ -70,6 +70,12 @@ const SignUpPage = () => {
       }
       const role = accountType === "student" ? "fellow" : "admin";
       localStorage.setItem("local-auth", JSON.stringify({ email, name, signedIn: true, role }));
+      // Store in registered accounts list for webmaster visibility
+      const accounts = JSON.parse(localStorage.getItem("registered_accounts") || "[]");
+      if (!accounts.find((a: { email: string }) => a.email === email)) {
+        accounts.push({ email, name, role, signedIn: true, createdAt: new Date().toISOString() });
+        localStorage.setItem("registered_accounts", JSON.stringify(accounts));
+      }
       logLoginAttempt({ email, method: "local", success: true });
       toast.success("Account created locally (demo mode).");
       window.location.href = "/";
