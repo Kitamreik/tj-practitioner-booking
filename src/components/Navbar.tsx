@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen, Shield, ClipboardList } from "lucide-react";
+import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen, Shield, ClipboardList, UserCircle } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
