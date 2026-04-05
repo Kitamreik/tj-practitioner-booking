@@ -32,6 +32,7 @@ const Navbar = () => {
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isWebmaster || isAdmin },
     { to: "/practicum", label: "Practicum", icon: ClipboardList, show: isFellow },
+    { to: "/profile", label: "Profile", icon: UserCircle, show: isFellow },
     { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);
 

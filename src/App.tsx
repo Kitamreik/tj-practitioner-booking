@@ -54,6 +54,7 @@ const AppContent = () => (
             }
           /> */}
           <Route path="/practicum" element={<PracticumPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/webmaster" element={<WebmasterPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
