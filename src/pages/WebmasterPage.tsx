@@ -285,6 +285,9 @@ const WebmasterPage = () => {
 
       {/* Login Attempt Monitor */}
       <LoginMonitor />
+
+      {/* Registered Accounts */}
+      <RegisteredAccountsList />
     </div>
   );
 };
