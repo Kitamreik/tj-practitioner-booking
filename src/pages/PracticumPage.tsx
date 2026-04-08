@@ -371,18 +371,6 @@ const PracticumPage = () => {
 
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="pi-date">Preferred Date *</Label>
-                    <Input
-                      id="pi-date"
-                      type="datetime-local"
-                      value={formData.preferredDate}
-                      onChange={(e) => updateField("preferredDate", e.target.value)}
-                      min={new Date().toISOString().slice(0, 16)}
-                      aria-invalid={!!errors.preferredDate}
-                    />
-                    {errors.preferredDate && <p className="text-xs text-destructive">{errors.preferredDate}</p>}
-                  </div>
-                  <div className="space-y-2">
                     <Label className="flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5" /> Urgency
                     </Label>
