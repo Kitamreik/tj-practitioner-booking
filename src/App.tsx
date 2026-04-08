@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 // import RoleGuard from "@/components/RoleGuard";
 import Index from "./pages/Index";
 import BookingsPage from "./pages/BookingsPage";
@@ -30,6 +31,7 @@ const AppContent = () => (
       <Sonner />
       <BrowserRouter>
         <Navbar />
+        <div className="pb-16 md:pb-0">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/reservations" element={<ReservationsPage />} />
@@ -61,6 +63,8 @@ const AppContent = () => (
           <Route path="/sso-callback" element={<SSOCallbackPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </div>
+        <MobileBottomNav />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

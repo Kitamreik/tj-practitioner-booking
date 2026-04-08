@@ -3,6 +3,8 @@ import { usersApi, type AppUser } from "@/lib/api";
 import { useRole } from "@/lib/roles";
 import LoginMonitor from "@/components/LoginMonitor";
 import RegisteredAccountsList from "@/components/RegisteredAccountsList";
+import ProfileEditLog from "@/components/ProfileEditLog";
+import PasswordResetEmailDialog from "@/components/PasswordResetEmailDialog";
 import { Shield, Users, Pencil, Trash2, Mail, Search, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +43,7 @@ const WebmasterPage = () => {
   const [editEmail, setEditEmail] = useState("");
   const [deleteUser, setDeleteUser] = useState<AppUser | null>(null);
   const [resetEmail, setResetEmail] = useState<AppUser | null>(null);
+  const [showResetTemplate, setShowResetTemplate] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -106,12 +109,18 @@ const WebmasterPage = () => {
 
   const handlePasswordReset = async () => {
     if (!resetEmail) return;
+    setShowResetTemplate(true);
+  };
+
+  const handleSendResetEmail = async () => {
+    if (!resetEmail) return;
     try {
       await usersApi.sendPasswordReset(resetEmail.email);
       toast.success(`Password reset email sent to ${resetEmail.email}`);
     } catch {
       toast.info("Backend unavailable — reset email queued for when backend is online.");
     }
+    setShowResetTemplate(false);
     setResetEmail(null);
   };
 
@@ -267,24 +276,21 @@ const WebmasterPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Password Reset Confirmation */}
-      <AlertDialog open={!!resetEmail} onOpenChange={(open) => { if (!open) setResetEmail(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Send Password Reset</AlertDialogTitle>
-            <AlertDialogDescription>
-              Send a password reset email to <strong>{resetEmail?.email}</strong>?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePasswordReset}>Send Reset Email</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Password Reset — now handled via PasswordResetEmailDialog below */}
+
+      {/* Password Reset Email Template */}
+      <PasswordResetEmailDialog
+        open={showResetTemplate}
+        onClose={() => { setShowResetTemplate(false); setResetEmail(null); }}
+        email={resetEmail?.email || ""}
+        onSend={handleSendResetEmail}
+      />
 
       {/* Login Attempt Monitor */}
       <LoginMonitor />
+
+      {/* Profile Edit History */}
+      <ProfileEditLog />
 
       {/* Registered Accounts */}
       <RegisteredAccountsList />

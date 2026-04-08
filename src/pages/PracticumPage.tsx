@@ -50,7 +50,6 @@ interface IntakeFormData {
   phone: string;
   service: string;
   practitioner: string;
-  preferredDate: string;
   urgency: string;
   referralSource: string;
   concerns: string;
@@ -62,7 +61,6 @@ interface FormErrors {
   lastName?: string;
   email?: string;
   service?: string;
-  preferredDate?: string;
   concerns?: string;
 }
 
@@ -92,7 +90,6 @@ const PracticumPage = () => {
     phone: "",
     service: "",
     practitioner: "",
-    preferredDate: "",
     urgency: "Medium",
     referralSource: "",
     concerns: "",
@@ -154,12 +151,6 @@ const PracticumPage = () => {
 
     if (!formData.service) newErrors.service = "Please select a service.";
 
-    if (!formData.preferredDate) {
-      newErrors.preferredDate = "Please select a preferred date.";
-    } else if (new Date(formData.preferredDate) < new Date()) {
-      newErrors.preferredDate = "Date must be in the future.";
-    }
-
     if (!formData.concerns.trim()) newErrors.concerns = "Please describe your primary concerns.";
 
     setErrors(newErrors);
@@ -176,7 +167,7 @@ const PracticumPage = () => {
       {
         customer_name: fullName,
         service: formData.service,
-        booking_time: new Date(formData.preferredDate).toISOString(),
+        booking_time: new Date().toISOString(),
         status: "pending",
         practitioner: formData.practitioner || undefined,
         duration: 60,
@@ -201,7 +192,7 @@ const PracticumPage = () => {
   const resetForm = () => {
     setFormData({
       firstName: "", lastName: "", email: "", phone: "",
-      service: "", practitioner: "", preferredDate: "",
+      service: "", practitioner: "",
       urgency: "Medium", referralSource: "", concerns: "", goals: "",
     });
     setErrors({});
@@ -379,18 +370,6 @@ const PracticumPage = () => {
                 </div>
 
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="pi-date">Preferred Date *</Label>
-                    <Input
-                      id="pi-date"
-                      type="datetime-local"
-                      value={formData.preferredDate}
-                      onChange={(e) => updateField("preferredDate", e.target.value)}
-                      min={new Date().toISOString().slice(0, 16)}
-                      aria-invalid={!!errors.preferredDate}
-                    />
-                    {errors.preferredDate && <p className="text-xs text-destructive">{errors.preferredDate}</p>}
-                  </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5" /> Urgency

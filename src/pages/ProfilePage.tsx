@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { logProfileEdit } from "@/components/ProfileEditLog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,6 +79,14 @@ const ProfilePage = () => {
       accounts[idx].name = trimmedName;
       accounts[idx].email = trimmedEmail;
       localStorage.setItem("registered_accounts", JSON.stringify(accounts));
+    }
+
+    // Log profile edits for webmaster
+    if (trimmedName !== user.name) {
+      logProfileEdit({ email: user.email, field: "name", oldValue: user.name, newValue: trimmedName });
+    }
+    if (trimmedEmail !== user.email) {
+      logProfileEdit({ email: user.email, field: "email", oldValue: user.email, newValue: trimmedEmail });
     }
 
     setUser({ name: trimmedName, email: trimmedEmail });
