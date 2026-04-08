@@ -50,7 +50,6 @@ interface IntakeFormData {
   phone: string;
   service: string;
   practitioner: string;
-  preferredDate: string;
   urgency: string;
   referralSource: string;
   concerns: string;
@@ -62,7 +61,6 @@ interface FormErrors {
   lastName?: string;
   email?: string;
   service?: string;
-  preferredDate?: string;
   concerns?: string;
 }
 
