@@ -31,6 +31,7 @@ const AppContent = () => (
       <Sonner />
       <BrowserRouter>
         <Navbar />
+        <div className="pb-16 md:pb-0">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/reservations" element={<ReservationsPage />} />
