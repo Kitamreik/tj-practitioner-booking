@@ -192,7 +192,7 @@ const PracticumPage = () => {
   const resetForm = () => {
     setFormData({
       firstName: "", lastName: "", email: "", phone: "",
-      service: "", practitioner: "", preferredDate: "",
+      service: "", practitioner: "",
       urgency: "Medium", referralSource: "", concerns: "", goals: "",
     });
     setErrors({});
