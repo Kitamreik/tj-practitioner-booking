@@ -207,7 +207,7 @@ const WebmasterPage = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => setResetEmail(user)}
+                    onClick={() => { setResetEmail(user); setShowResetTemplate(true); }}
                     className="gap-1"
                   >
                     <Mail className="h-3.5 w-3.5" /> Reset
