@@ -87,10 +87,12 @@ const IntakeRecordsViewer = () => {
                           <span className="text-foreground">{r.phone}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-foreground">{new Date(r.preferredDate).toLocaleString()}</span>
-                      </div>
+                      {r.preferredDate && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-foreground">{new Date(r.preferredDate).toLocaleString()}</span>
+                        </div>
+                      )}
                       {r.referralSource && (
                         <div className="text-muted-foreground">Referral: {r.referralSource}</div>
                       )}
