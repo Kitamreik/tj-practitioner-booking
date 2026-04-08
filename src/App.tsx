@@ -63,6 +63,8 @@ const AppContent = () => (
           <Route path="/sso-callback" element={<SSOCallbackPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </div>
+        <MobileBottomNav />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
