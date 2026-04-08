@@ -90,7 +90,6 @@ const PracticumPage = () => {
     phone: "",
     service: "",
     practitioner: "",
-    preferredDate: "",
     urgency: "Medium",
     referralSource: "",
     concerns: "",
