@@ -13,7 +13,7 @@ interface IntakeRecord {
   phone: string;
   service: string;
   practitioner: string;
-  preferredDate: string;
+  preferredDate?: string;
   urgency: string;
   referralSource: string;
   concerns: string;
