@@ -151,12 +151,6 @@ const PracticumPage = () => {
 
     if (!formData.service) newErrors.service = "Please select a service.";
 
-    if (!formData.preferredDate) {
-      newErrors.preferredDate = "Please select a preferred date.";
-    } else if (new Date(formData.preferredDate) < new Date()) {
-      newErrors.preferredDate = "Date must be in the future.";
-    }
-
     if (!formData.concerns.trim()) newErrors.concerns = "Please describe your primary concerns.";
 
     setErrors(newErrors);
