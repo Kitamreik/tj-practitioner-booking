@@ -43,6 +43,7 @@ const WebmasterPage = () => {
   const [editEmail, setEditEmail] = useState("");
   const [deleteUser, setDeleteUser] = useState<AppUser | null>(null);
   const [resetEmail, setResetEmail] = useState<AppUser | null>(null);
+  const [showResetTemplate, setShowResetTemplate] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
