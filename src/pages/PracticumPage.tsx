@@ -167,7 +167,7 @@ const PracticumPage = () => {
       {
         customer_name: fullName,
         service: formData.service,
-        booking_time: new Date(formData.preferredDate).toISOString(),
+        booking_time: new Date().toISOString(),
         status: "pending",
         practitioner: formData.practitioner || undefined,
         duration: 60,
