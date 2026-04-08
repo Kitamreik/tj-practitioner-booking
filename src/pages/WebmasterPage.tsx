@@ -292,8 +292,19 @@ const WebmasterPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Password Reset Email Template */}
+      <PasswordResetEmailDialog
+        open={showResetTemplate}
+        onClose={() => { setShowResetTemplate(false); setResetEmail(null); }}
+        email={resetEmail?.email || ""}
+        onSend={handleSendResetEmail}
+      />
+
       {/* Login Attempt Monitor */}
       <LoginMonitor />
+
+      {/* Profile Edit History */}
+      <ProfileEditLog />
 
       {/* Registered Accounts */}
       <RegisteredAccountsList />

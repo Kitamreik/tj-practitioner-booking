@@ -81,6 +81,14 @@ const ProfilePage = () => {
       localStorage.setItem("registered_accounts", JSON.stringify(accounts));
     }
 
+    // Log profile edits for webmaster
+    if (trimmedName !== user.name) {
+      logProfileEdit({ email: user.email, field: "name", oldValue: user.name, newValue: trimmedName });
+    }
+    if (trimmedEmail !== user.email) {
+      logProfileEdit({ email: user.email, field: "email", oldValue: user.email, newValue: trimmedEmail });
+    }
+
     setUser({ name: trimmedName, email: trimmedEmail });
     setEditing(false);
     toast.success("Profile updated successfully.");
