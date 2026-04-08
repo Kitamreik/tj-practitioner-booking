@@ -109,12 +109,18 @@ const WebmasterPage = () => {
 
   const handlePasswordReset = async () => {
     if (!resetEmail) return;
+    setShowResetTemplate(true);
+  };
+
+  const handleSendResetEmail = async () => {
+    if (!resetEmail) return;
     try {
       await usersApi.sendPasswordReset(resetEmail.email);
       toast.success(`Password reset email sent to ${resetEmail.email}`);
     } catch {
       toast.info("Backend unavailable — reset email queued for when backend is online.");
     }
+    setShowResetTemplate(false);
     setResetEmail(null);
   };
 
