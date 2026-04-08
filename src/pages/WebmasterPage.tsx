@@ -276,21 +276,7 @@ const WebmasterPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Password Reset Confirmation */}
-      <AlertDialog open={!!resetEmail} onOpenChange={(open) => { if (!open) setResetEmail(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Send Password Reset</AlertDialogTitle>
-            <AlertDialogDescription>
-              Send a password reset email to <strong>{resetEmail?.email}</strong>?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePasswordReset}>Send Reset Email</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Password Reset — now handled via PasswordResetEmailDialog below */}
 
       {/* Password Reset Email Template */}
       <PasswordResetEmailDialog
