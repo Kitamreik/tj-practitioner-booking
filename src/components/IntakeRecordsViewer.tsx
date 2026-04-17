@@ -34,7 +34,7 @@ const urgencyColor: Record<string, string> = {
 
 const IntakeRecordsViewer = () => {
   const [records, setRecords] = useState<IntakeRecord[]>([]);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<IntakeRecord | null>(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
@@ -49,11 +49,13 @@ const IntakeRecordsViewer = () => {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  const handleDelete = (id: string) => {
-    const next = records.filter((r) => r.id !== id);
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    const next = records.filter((r) => r.id !== pendingDelete.id);
     setRecords(next);
     localStorage.setItem("practicum_intakes", JSON.stringify(next));
     toast.success("Intake record deleted");
+    setPendingDelete(null);
   };
 
   if (records.length === 0) return null;
