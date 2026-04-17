@@ -2,8 +2,9 @@ import { useState, useMemo } from "react";
 import BookingCard from "@/components/BookingCard";
 import SearchBar from "@/components/SearchBar";
 import PaginationControls from "@/components/PaginationControls";
-import IntakeRecordsViewer from "@/components/IntakeRecordsViewer";
+import PullToRefresh from "@/components/PullToRefresh";
 import { useBookings } from "@/hooks/useBookings";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 5;
