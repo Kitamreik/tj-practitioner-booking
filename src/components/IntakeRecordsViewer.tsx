@@ -34,6 +34,7 @@ const urgencyColor: Record<string, string> = {
 
 const IntakeRecordsViewer = () => {
   const [records, setRecords] = useState<IntakeRecord[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<IntakeRecord | null>(null);
 
   useEffect(() => {
@@ -90,7 +91,7 @@ const IntakeRecordsViewer = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(r.id)}
+                      onClick={() => setPendingDelete(r)}
                       className="text-destructive hover:text-destructive"
                       aria-label="Delete intake record"
                     >
