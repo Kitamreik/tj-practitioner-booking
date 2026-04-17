@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, ChevronDown, ChevronUp, User, Mail, Phone, Calendar } from "lucide-react";
+import { ClipboardList, ChevronDown, ChevronUp, User, Mail, Phone, Calendar, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface IntakeRecord {
   id: string;
@@ -44,6 +45,13 @@ const IntakeRecordsViewer = () => {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  const handleDelete = (id: string) => {
+    const next = records.filter((r) => r.id !== id);
+    setRecords(next);
+    localStorage.setItem("practicum_intakes", JSON.stringify(next));
+    toast.success("Intake record deleted");
+  };
+
   if (records.length === 0) return null;
 
   return (
@@ -69,9 +77,20 @@ const IntakeRecordsViewer = () => {
                     </div>
                     <p className="text-xs text-muted-foreground">{r.service}{r.practitioner ? ` · ${r.practitioner}` : ""}</p>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setExpandedId(expanded ? null : r.id)}>
-                    {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => setExpandedId(expanded ? null : r.id)}>
+                      {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(r.id)}
+                      className="text-destructive hover:text-destructive"
+                      aria-label="Delete intake record"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {expanded && (
