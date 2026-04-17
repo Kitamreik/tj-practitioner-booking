@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ClipboardList, ChevronDown, ChevronUp, User, Mail, Phone, Calendar, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,6 +35,7 @@ const urgencyColor: Record<string, string> = {
 const IntakeRecordsViewer = () => {
   const [records, setRecords] = useState<IntakeRecord[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<IntakeRecord | null>(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
@@ -45,11 +50,13 @@ const IntakeRecordsViewer = () => {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  const handleDelete = (id: string) => {
-    const next = records.filter((r) => r.id !== id);
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    const next = records.filter((r) => r.id !== pendingDelete.id);
     setRecords(next);
     localStorage.setItem("practicum_intakes", JSON.stringify(next));
     toast.success("Intake record deleted");
+    setPendingDelete(null);
   };
 
   if (records.length === 0) return null;
@@ -84,7 +91,7 @@ const IntakeRecordsViewer = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(r.id)}
+                      onClick={() => setPendingDelete(r)}
                       className="text-destructive hover:text-destructive"
                       aria-label="Delete intake record"
                     >
@@ -134,6 +141,27 @@ const IntakeRecordsViewer = () => {
           );
         })}
       </div>
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => { if (!open) setPendingDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete intake record?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the intake record for{" "}
+              <strong>{pendingDelete?.fullName}</strong>. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
