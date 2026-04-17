@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { logProfileEdit } from "@/components/ProfileEditLog";
+import PullToRefresh from "@/components/PullToRefresh";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRole } from "@/lib/roles";
-import { useBookings } from "@/hooks/useBookings";
-import { User, Mail, Shield, Calendar, Clock, Loader2, Pencil, Check, X } from "lucide-react";
+import { User, Mail, Shield, Loader2, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 const roleBadgeStyles: Record<string, string> = {
@@ -18,7 +18,10 @@ const roleBadgeStyles: Record<string, string> = {
 
 const ProfilePage = () => {
   const { role, isLoaded } = useRole();
-  const { data: bookings = [], isLoading } = useBookings();
+  const handleRefresh = () => {
+    const local = JSON.parse(localStorage.getItem("local-auth") || "{}");
+    if (local.name) setUser({ name: local.name, email: local.email || "" });
+  };
   const [user, setUser] = useState({ name: "Student", email: "" });
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
@@ -103,6 +106,7 @@ const ProfilePage = () => {
   }
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="container py-8">
       <div className="mx-auto max-w-2xl space-y-6">
         {/* Profile Header */}
