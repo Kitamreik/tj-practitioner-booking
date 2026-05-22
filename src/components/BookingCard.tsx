@@ -5,6 +5,7 @@ import type { Booking } from "@/lib/mockData";
 import BookingChecklist from "@/components/BookingChecklist";
 import BookingComments from "@/components/BookingComments";
 import FellowFileVault from "@/components/FellowFileVault";
+import ClientOnboardingNotes from "@/components/ClientOnboardingNotes";
 
 interface BookingCardProps {
   booking: Booking;
