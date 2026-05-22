@@ -5,6 +5,7 @@ import type { Booking } from "@/lib/mockData";
 import BookingChecklist from "@/components/BookingChecklist";
 import BookingComments from "@/components/BookingComments";
 import FellowFileVault from "@/components/FellowFileVault";
+import ClientOnboardingNotes from "@/components/ClientOnboardingNotes";
 
 interface BookingCardProps {
   booking: Booking;
@@ -67,6 +68,15 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false, viewMode 
 
         {/* Comments - above edit button */}
         {viewMode && <BookingComments bookingId={booking.id} canEdit={viewMode === "fellow" || viewMode === "admin"} />}
+
+        {/* Client Onboarding Notes - admin-editable scenario seeds */}
+        {viewMode && (
+          <ClientOnboardingNotes
+            bookingId={booking.id}
+            service={booking.service}
+            canEdit={viewMode === "admin"}
+          />
+        )}
 
         {showActions && (
           <div className="mt-4 flex gap-2 border-t pt-3">
