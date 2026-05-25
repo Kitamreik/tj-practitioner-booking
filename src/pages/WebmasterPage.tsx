@@ -143,6 +143,10 @@ const WebmasterPage = () => {
         </Badge>
       </div>
 
+      <div className="mb-6 flex justify-end">
+        <CreateUserDialog onCreated={(u) => setUsers((prev) => [u, ...prev])} />
+      </div>
+
       {/* Stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
         {[
@@ -296,6 +300,9 @@ const WebmasterPage = () => {
 
       {/* Registered Accounts */}
       <RegisteredAccountsList />
+
+      {/* Production toggles (demo accounts, Google sign-in) */}
+      <ProductionToggles />
     </div>
   );
 };
