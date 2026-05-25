@@ -6,6 +6,7 @@ import BookingChecklist from "@/components/BookingChecklist";
 import BookingComments from "@/components/BookingComments";
 import FellowFileVault from "@/components/FellowFileVault";
 import ClientOnboardingNotes from "@/components/ClientOnboardingNotes";
+import AdminStudentNotes from "@/components/AdminStudentNotes";
 
 interface BookingCardProps {
   booking: Booking;
@@ -89,6 +90,9 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false, viewMode 
           </div>
         )}
         {showActions && <BookingChecklist bookingId={booking.id} />}
+        {viewMode && (
+          <AdminStudentNotes bookingId={booking.id} canEdit={viewMode === "admin"} />
+        )}
 
         {/* Fellow File Vault */}
         {viewMode && (

@@ -125,4 +125,39 @@ export const usersApi = {
 
   sendPasswordReset: (email: string, token?: string): Promise<void> =>
     apiFetch<void>("/api/users/reset-password", { method: "POST", body: JSON.stringify({ email }) }, { token }),
+
+  create: (data: { name: string; email: string; role: AppUser["role"] }, token?: string): Promise<AppUser> =>
+    apiFetch<AppUser>("/api/users/create", { method: "POST", body: JSON.stringify(data) }, { token }),
+
+  sendMagicLink: (email: string, role: AppUser["role"], token?: string): Promise<void> =>
+    apiFetch<void>("/api/users/magic-link", { method: "POST", body: JSON.stringify({ email, role }) }, { token }),
+};
+
+// --- Onboarding Notes API (per-booking onboarding scenarios) ---
+export interface OnboardingNotePayload {
+  id: string;
+  bookingId: string;
+  category: string;
+  contentWarnings: string[];
+  title: string;
+  body: string;
+  order: number;
+  createdAt: string;
+}
+
+export const onboardingApi = {
+  getByBooking: (bookingId: string, token?: string): Promise<OnboardingNotePayload[]> =>
+    apiFetch<OnboardingNotePayload[]>(`/api/onboarding/${bookingId}`, {}, { token }),
+
+  saveAll: (bookingId: string, notes: OnboardingNotePayload[], token?: string): Promise<void> =>
+    apiFetch<void>(`/api/onboarding/${bookingId}`, { method: "PUT", body: JSON.stringify({ notes }) }, { token }),
+};
+
+// --- Admin → Student notes (under checklist) ---
+export const adminStudentNotesApi = {
+  get: (bookingId: string, token?: string): Promise<{ text: string; updatedAt: string }> =>
+    apiFetch(`/api/admin-notes/${bookingId}`, {}, { token }),
+
+  save: (bookingId: string, text: string, token?: string): Promise<void> =>
+    apiFetch(`/api/admin-notes/${bookingId}`, { method: "PUT", body: JSON.stringify({ text }) }, { token }),
 };

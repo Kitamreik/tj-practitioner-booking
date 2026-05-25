@@ -4,6 +4,7 @@ import { Calendar, Mail, Lock, ArrowRight, GraduationCap, Shield } from "lucide-
 import { toast } from "sonner";
 import { useSignIn } from "@clerk/clerk-react";
 import { logLoginAttempt } from "@/components/LoginMonitor";
+import { useFeatureFlags } from "@/lib/featureFlags";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -17,6 +18,7 @@ const GoogleIcon = () => (
 const SignInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const flags = useFeatureFlags();
 
   let signInWithGoogle: (() => void) | null = null;
   let signInWithForm: ((e: React.FormEvent) => void) | null = null;
@@ -111,19 +113,23 @@ const SignInPage = () => {
         </div>
 
         <div className="rounded-xl border bg-card p-8 shadow-sm">
-          <button
-            onClick={handleGoogle}
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border bg-background text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            <GoogleIcon />
-            Continue with Google
-          </button>
+          {flags.googleSignInEnabled && (
+            <>
+              <button
+                onClick={handleGoogle}
+                className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border bg-background text-sm font-medium text-foreground transition-colors hover:bg-accent"
+              >
+                <GoogleIcon />
+                Continue with Google
+              </button>
 
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">or</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
+              <div className="my-6 flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">or</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+            </>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -161,23 +167,25 @@ const SignInPage = () => {
             </button>
           </form>
 
-          <div className="mt-6 border-t pt-4">
-            <p className="mb-3 text-center text-xs font-medium text-muted-foreground">Quick Demo Login</p>
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => handleDemoLogin("student@bookflow.demo")}
-                className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
-              >
-                <GraduationCap className="h-4 w-4" /> Sign in as Student
-              </button>
-              <button
-                onClick={() => handleDemoLogin("admin@bookflow.demo")}
-                className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-muted-foreground/20 bg-muted/50 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
-              >
-                <Shield className="h-4 w-4" /> Sign in as Admin
-              </button>
+          {flags.demoAccountsEnabled && (
+            <div className="mt-6 border-t pt-4">
+              <p className="mb-3 text-center text-xs font-medium text-muted-foreground">Quick Demo Login</p>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => handleDemoLogin("student@bookflow.demo")}
+                  className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+                >
+                  <GraduationCap className="h-4 w-4" /> Sign in as Student
+                </button>
+                <button
+                  onClick={() => handleDemoLogin("admin@bookflow.demo")}
+                  className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-muted-foreground/20 bg-muted/50 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+                >
+                  <Shield className="h-4 w-4" /> Sign in as Admin
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}

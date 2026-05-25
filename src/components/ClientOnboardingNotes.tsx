@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { ClipboardList, Sparkles, Pencil, Trash2, Save, X, AlertTriangle, ChevronDown } from "lucide-react";
+import {
+  ClipboardList, Sparkles, Pencil, Trash2, Save, X, AlertTriangle, ChevronDown,
+  ArrowUp, ArrowDown, RefreshCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { randomScenarioForService, type ScenarioCategory } from "@/lib/onboardingScenarios";
+import { onboardingApi, type OnboardingNotePayload } from "@/lib/api";
 import { toast } from "sonner";
 
 interface OnboardingNote {
@@ -25,7 +29,7 @@ interface ClientOnboardingNotesProps {
 
 const storageKey = (bookingId: string) => `onboarding-notes-${bookingId}`;
 
-function loadNotes(bookingId: string): OnboardingNote[] {
+function loadLocalNotes(bookingId: string): OnboardingNote[] {
   try {
     const raw = localStorage.getItem(storageKey(bookingId));
     return raw ? JSON.parse(raw) : [];
@@ -34,8 +38,12 @@ function loadNotes(bookingId: string): OnboardingNote[] {
   }
 }
 
-function saveNotes(bookingId: string, notes: OnboardingNote[]) {
+function saveLocalNotes(bookingId: string, notes: OnboardingNote[]) {
   localStorage.setItem(storageKey(bookingId), JSON.stringify(notes));
+}
+
+function toPayload(bookingId: string, notes: OnboardingNote[]): OnboardingNotePayload[] {
+  return notes.map((n, i) => ({ ...n, bookingId, order: i }));
 }
 
 const ClientOnboardingNotes = ({ bookingId, service, canEdit }: ClientOnboardingNotesProps) => {
@@ -44,13 +52,37 @@ const ClientOnboardingNotes = ({ bookingId, service, canEdit }: ClientOnboarding
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<OnboardingNote | null>(null);
 
+  // Load: local first (instant), then backend (overrides if available)
   useEffect(() => {
-    setNotes(loadNotes(bookingId));
+    setNotes(loadLocalNotes(bookingId));
+    onboardingApi
+      .getByBooking(bookingId)
+      .then((remote) => {
+        if (Array.isArray(remote) && remote.length >= 0) {
+          const sorted = [...remote].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+          const mapped: OnboardingNote[] = sorted.map((r) => ({
+            id: r.id,
+            category: r.category,
+            contentWarnings: r.contentWarnings || [],
+            title: r.title,
+            body: r.body,
+            createdAt: r.createdAt,
+          }));
+          setNotes(mapped);
+          saveLocalNotes(bookingId, mapped);
+        }
+      })
+      .catch(() => {
+        // backend unavailable — local is the failsafe
+      });
   }, [bookingId]);
 
   const persist = (next: OnboardingNote[]) => {
     setNotes(next);
-    saveNotes(bookingId, next);
+    saveLocalNotes(bookingId, next);
+    onboardingApi.saveAll(bookingId, toPayload(bookingId, next)).catch(() => {
+      // silent: local copy already saved
+    });
   };
 
   const handleGenerate = () => {
@@ -66,6 +98,35 @@ const ClientOnboardingNotes = ({ bookingId, service, canEdit }: ClientOnboarding
     };
     persist([note, ...notes]);
     toast.success(`Seeded scenario: ${tpl.category}`);
+  };
+
+  const handleRegenerate = (id: string) => {
+    const target = notes.find((n) => n.id === id);
+    if (!target) return;
+    const otherCats = notes
+      .filter((n) => n.id !== id)
+      .map((n) => n.category as ScenarioCategory);
+    const tpl = randomScenarioForService(service, otherCats);
+    const replaced: OnboardingNote = {
+      id: target.id,
+      category: tpl.category,
+      contentWarnings: tpl.contentWarnings,
+      title: tpl.title,
+      body: tpl.body,
+      createdAt: new Date().toISOString(),
+    };
+    persist(notes.map((n) => (n.id === id ? replaced : n)));
+    toast.success(`Regenerated as: ${tpl.category}`);
+  };
+
+  const move = (id: string, direction: -1 | 1) => {
+    const idx = notes.findIndex((n) => n.id === id);
+    if (idx < 0) return;
+    const swap = idx + direction;
+    if (swap < 0 || swap >= notes.length) return;
+    const next = [...notes];
+    [next[idx], next[swap]] = [next[swap], next[idx]];
+    persist(next);
   };
 
   const startEdit = (n: OnboardingNote) => {
@@ -107,7 +168,7 @@ const ClientOnboardingNotes = ({ bookingId, service, canEdit }: ClientOnboarding
         </p>
       ) : (
         <div className="space-y-2">
-          {notes.map((n) => {
+          {notes.map((n, i) => {
             const isOpen = !!openIds[n.id];
             const isEditing = editingId === n.id;
             return (
@@ -175,7 +236,31 @@ const ClientOnboardingNotes = ({ bookingId, service, canEdit }: ClientOnboarding
                         )}
                       </div>
                       {canEdit && (
-                        <div className="flex shrink-0 gap-1">
+                        <div className="flex shrink-0 items-center gap-0.5">
+                          <button
+                            onClick={() => move(n.id, -1)}
+                            disabled={i === 0}
+                            className="rounded p-1 hover:bg-accent disabled:opacity-30"
+                            aria-label="Move up"
+                          >
+                            <ArrowUp className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                          <button
+                            onClick={() => move(n.id, 1)}
+                            disabled={i === notes.length - 1}
+                            className="rounded p-1 hover:bg-accent disabled:opacity-30"
+                            aria-label="Move down"
+                          >
+                            <ArrowDown className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                          <button
+                            onClick={() => handleRegenerate(n.id)}
+                            className="rounded p-1 hover:bg-accent"
+                            aria-label="Regenerate scenario"
+                            title="Regenerate seed scenario"
+                          >
+                            <RefreshCw className="h-3 w-3 text-muted-foreground" />
+                          </button>
                           <button onClick={() => startEdit(n)} className="rounded p-1 hover:bg-accent" aria-label="Edit scenario">
                             <Pencil className="h-3 w-3 text-muted-foreground" />
                           </button>
