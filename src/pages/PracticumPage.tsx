@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCreateBooking } from "@/hooks/useBookings";
+import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
+import { toast } from "sonner";
 import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search } from "lucide-react";
 
 const referralSources = [
@@ -22,16 +24,6 @@ const referralSources = [
   "Healthcare Provider",
   "Community Event",
   "Other",
-];
-
-const services = [
-  "Organizational Systems Work",
-  "Panels and Talks",
-  "Remote & In- Person Conferences",
-  "Workshops",
-  "One-on-One Consulting",
-  "Short Term/Long Term Retainer",
-  "Crisis and Case Management",
 ];
 
 const practitioners = [
@@ -81,6 +73,7 @@ interface PastIntake {
 }
 
 const PracticumPage = () => {
+  const services = useEnabledServices();
   const [isReturning, setIsReturning] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [pastIntakes, setPastIntakes] = useState<PastIntake[]>([]);
@@ -161,6 +154,10 @@ const PracticumPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+
+    if (!hasMappedScenarios(formData.service)) {
+      toast.warning(`Heads up: "${formData.service}" has no onboarding scenarios mapped yet.`);
+    }
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
 
@@ -349,7 +346,7 @@ const PracticumPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {services.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

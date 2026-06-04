@@ -10,18 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateBooking } from "@/hooks/useBookings";
+import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, CheckCircle, ArrowRight } from "lucide-react";
-
-const services = [
-  "Organizational Systems Work",
-  "Panels and Talks",
-  "Remote & In- Person Conferences",
-  "Workshops",
-  "One-on-One Consulting",
-  "Short Term/Long Term Retainer",
-  "Crisis and Case Management",
-];
 
 const practitioners = [
   "Kit A. (they/she)",
@@ -38,6 +30,7 @@ interface FormErrors {
 }
 
 const ReservationsPage = () => {
+  const services = useEnabledServices();
   const [customerName, setCustomerName] = useState("");
   const [service, setService] = useState("");
   const [practitioner, setPractitioner] = useState("");
@@ -81,6 +74,10 @@ const ReservationsPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+
+    if (!hasMappedScenarios(service)) {
+      toast.warning(`Heads up: "${service}" has no onboarding scenarios mapped yet.`);
+    }
 
     createBooking.mutate(
       {
@@ -169,7 +166,7 @@ const ReservationsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {services.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                      <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

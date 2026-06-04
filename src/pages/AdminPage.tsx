@@ -12,6 +12,7 @@ import type { Booking } from "@/lib/mockData";
 import FileVault from "@/components/FileVault";
 import AdminTestimonials from "@/components/AdminTestimonials";
 import IntakeRecordsViewer from "@/components/IntakeRecordsViewer";
+import ServicesManager from "@/components/ServicesManager";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 5;
@@ -132,6 +133,7 @@ const AdminPage = () => {
 
       <ChecklistTracker bookings={bookings} />
       <IntakeRecordsViewer />
+      <ServicesManager />
       <FileVault />
       <AdminTestimonials />
     </div>
