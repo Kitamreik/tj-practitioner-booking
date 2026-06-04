@@ -27,7 +27,8 @@ const services = [
   "Remote & In- Person Conferences",
   "Workshops",
   "One-on-One Consulting",
-  "Short Term/Long Term Retainer"
+  "Short Term/Long Term Retainer",
+  "Crisis and Case Management"
 ];
 
 const practitioners = [
