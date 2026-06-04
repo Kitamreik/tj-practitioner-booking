@@ -108,6 +108,7 @@ export const SCENARIO_LIBRARY: ScenarioTemplate[] = [
     title: "Survivor asked to participate in 'healing' panel",
     body: "An organization has invited a survivor to speak on a healing-themed panel without first asking what conditions they would need. The survivor has agreed, then withdrawn, then re-agreed. The client wants a one-on-one prep session: informed consent, an exit plan during the event, and a debrief structure that does not put the survivor in charge of the audience's emotions.",
     fitsServices: ["Panels and Talks", "One-on-One Consulting"],
+  },
   {
     category: "Crisis Response",
     contentWarnings: ["acute crisis", "case escalation"],
