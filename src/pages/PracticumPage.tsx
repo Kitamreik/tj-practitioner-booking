@@ -73,6 +73,7 @@ interface PastIntake {
 }
 
 const PracticumPage = () => {
+  const services = useEnabledServices();
   const [isReturning, setIsReturning] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [pastIntakes, setPastIntakes] = useState<PastIntake[]>([]);
@@ -153,6 +154,10 @@ const PracticumPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+
+    if (!hasMappedScenarios(formData.service)) {
+      toast.warning(`Heads up: "${formData.service}" has no onboarding scenarios mapped yet.`);
+    }
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
 
@@ -341,7 +346,7 @@ const PracticumPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {services.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
