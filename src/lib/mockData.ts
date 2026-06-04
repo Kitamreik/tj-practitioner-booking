@@ -68,6 +68,15 @@ export const mockBookings: Booking[] = [
     practitioner: "Ray V. (he/him)",
     duration: 60,
   },
+  {
+    id: "7",
+    customer_name: "Noor Hassan",
+    service: "Crisis and Case Management",
+    booking_time: "2026-03-17T13:00:00",
+    status: "confirmed",
+    practitioner: "Kit A. (they/she)",
+    duration: 90,
+  },
   // {
   //   id: "7",
   //   customer_name: "Priya Sharma",
