@@ -83,6 +83,10 @@ const CreateBookingDialog = () => {
     e.preventDefault();
     if (!validate()) return;
 
+    if (!hasMappedScenarios(service)) {
+      toast.warning(`Heads up: "${service}" has no onboarding scenarios mapped yet.`);
+    }
+
     createBooking.mutate(
       {
         customer_name: customerName.trim(),
@@ -145,7 +149,7 @@ const CreateBookingDialog = () => {
               </SelectTrigger>
               <SelectContent>
                 {services.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                  <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
