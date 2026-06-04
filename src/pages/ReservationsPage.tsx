@@ -166,7 +166,7 @@ const ReservationsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {services.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                      <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

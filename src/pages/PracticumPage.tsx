@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCreateBooking } from "@/hooks/useBookings";
+import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
+import { toast } from "sonner";
 import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search } from "lucide-react";
 
 const referralSources = [
@@ -22,16 +24,6 @@ const referralSources = [
   "Healthcare Provider",
   "Community Event",
   "Other",
-];
-
-const services = [
-  "Organizational Systems Work",
-  "Panels and Talks",
-  "Remote & In- Person Conferences",
-  "Workshops",
-  "One-on-One Consulting",
-  "Short Term/Long Term Retainer",
-  "Crisis and Case Management",
 ];
 
 const practitioners = [
