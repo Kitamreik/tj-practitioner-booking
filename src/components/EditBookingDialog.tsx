@@ -44,6 +44,7 @@ interface FormErrors {
 }
 
 const EditBookingDialog = ({ booking, open, onOpenChange }: EditBookingDialogProps) => {
+  const enabledServices = useEnabledServices();
   const [customerName, setCustomerName] = useState("");
   const [service, setService] = useState("");
   const [practitioner, setPractitioner] = useState("");
@@ -103,6 +104,10 @@ const EditBookingDialog = ({ booking, open, onOpenChange }: EditBookingDialogPro
     e.preventDefault();
     if (!booking || !validate()) return;
 
+    if (!hasMappedScenarios(service)) {
+      toast.warning(`Heads up: "${service}" has no onboarding scenarios mapped yet.`);
+    }
+
     updateBooking.mutate(
       {
         id: booking.id,
@@ -161,8 +166,14 @@ const EditBookingDialog = ({ booking, open, onOpenChange }: EditBookingDialogPro
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {services.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                {(enabledServices.some((s) => s.name === service) || !service
+                  ? enabledServices
+                  : [...enabledServices, { id: service, name: service, enabled: false }]
+                ).map((s) => (
+                  <SelectItem key={s.id} value={s.name}>
+                    {s.name}
+                    {!s.enabled && " (deprecated)"}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
