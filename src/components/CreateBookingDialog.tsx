@@ -19,17 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateBooking } from "@/hooks/useBookings";
+import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
+import { toast } from "sonner";
 import { Plus } from "lucide-react";
-
-const services = [
-  "Organizational Systems Work",
-  "Panels and Talks",
-  "Remote & In- Person Conferences",
-  "Workshops",
-  "One-on-One Consulting",
-  "Short Term/Long Term Retainer",
-  "Crisis and Case Management"
-];
 
 const practitioners = [
   "Kit A. (they/she)",
@@ -46,6 +38,7 @@ interface FormErrors {
 }
 
 const CreateBookingDialog = () => {
+  const services = useEnabledServices();
   const [open, setOpen] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [service, setService] = useState("");
