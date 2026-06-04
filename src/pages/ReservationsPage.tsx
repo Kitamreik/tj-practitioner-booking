@@ -20,6 +20,7 @@ const services = [
   "Workshops",
   "One-on-One Consulting",
   "Short Term/Long Term Retainer",
+  "Crisis and Case Management",
 ];
 
 const practitioners = [
