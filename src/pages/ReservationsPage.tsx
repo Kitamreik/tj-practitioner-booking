@@ -10,18 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateBooking } from "@/hooks/useBookings";
+import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, CheckCircle, ArrowRight } from "lucide-react";
-
-const services = [
-  "Organizational Systems Work",
-  "Panels and Talks",
-  "Remote & In- Person Conferences",
-  "Workshops",
-  "One-on-One Consulting",
-  "Short Term/Long Term Retainer",
-  "Crisis and Case Management",
-];
 
 const practitioners = [
   "Kit A. (they/she)",
