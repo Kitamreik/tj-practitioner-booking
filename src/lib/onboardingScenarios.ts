@@ -108,6 +108,26 @@ export const SCENARIO_LIBRARY: ScenarioTemplate[] = [
     title: "Survivor asked to participate in 'healing' panel",
     body: "An organization has invited a survivor to speak on a healing-themed panel without first asking what conditions they would need. The survivor has agreed, then withdrawn, then re-agreed. The client wants a one-on-one prep session: informed consent, an exit plan during the event, and a debrief structure that does not put the survivor in charge of the audience's emotions.",
     fitsServices: ["Panels and Talks", "One-on-One Consulting"],
+  {
+    category: "Crisis Response",
+    contentWarnings: ["acute crisis", "case escalation"],
+    title: "Active case load with overlapping crisis touchpoints",
+    body: "A community-based program is carrying three active cases that have begun to intersect: a participant in housing crisis, a staff member managing secondary trauma, and a partner agency threatening to withdraw a referral pipeline. The client wants a case management framework: triage criteria, documentation that protects participants, escalation thresholds, and clear handoff language between practitioners.",
+    fitsServices: ["Crisis and Case Management", "One-on-One Consulting"],
+  },
+  {
+    category: "Conflict Management",
+    contentWarnings: ["case conflict", "interagency tension"],
+    title: "Multi-agency case with conflicting safety plans",
+    body: "Two agencies are co-managing a case and have produced incompatible safety plans. The participant is receiving contradictory guidance and has started to disengage. The client needs help facilitating a joint case conference, aligning on a single coordinated plan, and naming the structural conditions — funding, mandate, scope — that produced the conflict.",
+    fitsServices: ["Crisis and Case Management", "Organizational Systems Work"],
+  },
+  {
+    category: "Harm Dynamics",
+    contentWarnings: ["ongoing harm", "case continuity"],
+    title: "Case carrying disclosure of ongoing harm",
+    body: "A participant in an open case has disclosed ongoing harm from a household member. They are not ready to leave the situation and have asked their case manager to keep the disclosure confidential beyond mandated reporting. The client wants a one-on-one consult on holding the case ethically: documentation, safety planning that respects the participant's pace, and supervision support for the case manager.",
+    fitsServices: ["Crisis and Case Management", "One-on-One Consulting"],
   },
 ];
 
