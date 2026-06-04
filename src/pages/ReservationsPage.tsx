@@ -30,6 +30,7 @@ interface FormErrors {
 }
 
 const ReservationsPage = () => {
+  const services = useEnabledServices();
   const [customerName, setCustomerName] = useState("");
   const [service, setService] = useState("");
   const [practitioner, setPractitioner] = useState("");
@@ -73,6 +74,10 @@ const ReservationsPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+
+    if (!hasMappedScenarios(service)) {
+      toast.warning(`Heads up: "${service}" has no onboarding scenarios mapped yet.`);
+    }
 
     createBooking.mutate(
       {
