@@ -7,29 +7,40 @@ export type AppRole = "admin" | "fellow" | "webmaster";
  * Set roles in your Clerk Dashboard → Users → select user → publicMetadata:
  *   { "role": "admin" }  or  { "role": "fellow" }  or  { "role": "webmaster" }
  *
- * Defaults to "fellow" if no role is set or Clerk is not configured.
+ * Clerk-authenticated users (including Google OAuth sign-ins) default to
+ * "webmaster" when no explicit role is set, so they can reach both the
+ * admin and webmaster pages. Local-auth accounts keep their seeded role.
  */
 export function useRole(): { role: AppRole; isAdmin: boolean; isFellow: boolean; isWebmaster: boolean; isLoaded: boolean } {
+  const build = (role: AppRole, isLoaded: boolean) => ({
+    role,
+    isAdmin: role === "admin",
+    isFellow: role === "fellow",
+    isWebmaster: role === "webmaster",
+    isLoaded,
+  });
+
   try {
     const { user, isLoaded } = useUser();
     if (user) {
-      const role = (user?.publicMetadata?.role as AppRole) || "fellow";
-      return { role, isAdmin: role === "admin", isFellow: role === "fellow", isWebmaster: role === "webmaster", isLoaded };
+      const metaRole = user?.publicMetadata?.role as AppRole | undefined;
+      // Google/Clerk users without an explicit role are treated as webmaster
+      // so they can access both /admin and /webmaster.
+      const role: AppRole = metaRole || "webmaster";
+      return build(role, isLoaded);
     }
     // Check local-auth fallback
     const local = JSON.parse(localStorage.getItem("local-auth") || "{}");
     if (local.signedIn && local.role) {
-      const role = local.role as AppRole;
-      return { role, isAdmin: role === "admin", isFellow: role === "fellow", isWebmaster: role === "webmaster", isLoaded: true };
+      return build(local.role as AppRole, true);
     }
-    return { role: "fellow", isAdmin: false, isFellow: true, isWebmaster: false, isLoaded };
+    return build("fellow", isLoaded);
   } catch {
     // Clerk not configured — check local-auth
     const local = JSON.parse(localStorage.getItem("local-auth") || "{}");
     if (local.signedIn && local.role) {
-      const role = local.role as AppRole;
-      return { role, isAdmin: role === "admin", isFellow: role === "fellow", isWebmaster: role === "webmaster", isLoaded: true };
+      return build(local.role as AppRole, true);
     }
-    return { role: "admin", isAdmin: true, isFellow: false, isWebmaster: false, isLoaded: true };
+    return build("admin", true);
   }
 }
