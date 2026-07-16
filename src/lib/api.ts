@@ -107,6 +107,15 @@ async function apiFetch<T>(
 
   const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
 
+  if (res.status === 401 || res.status === 403) {
+    await handleAuthFailure(res.status);
+    throw new Error(
+      res.status === 401
+        ? "Unauthorized: your session is invalid or expired"
+        : "Forbidden: your account is not permitted to perform this action"
+    );
+  }
+
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`API error ${res.status}: ${text}`);
@@ -115,21 +124,69 @@ async function apiFetch<T>(
   return res.json();
 }
 
+/**
+ * Global handler for 401/403 responses from privileged API calls.
+ *
+ * - 401 → the session is invalid/expired. Wipe local state and bounce to
+ *   /sign-in with a `next` hint so the user can return after re-auth.
+ * - 403 → the session is valid but the role is wrong. Keep the session but
+ *   send the user back to the safe landing page.
+ *
+ * This is the client half of the defense — the Render/Express backend is
+ * the source of truth and MUST enforce these checks itself.
+ */
+async function handleAuthFailure(status: 401 | 403 | number) {
+  if (typeof window === "undefined") return;
+  // Debounce: avoid a redirect storm when many queries fail at once.
+  const now = Date.now();
+  const last = Number(sessionStorage.getItem("__auth_failure_at") || 0);
+  if (now - last < 1500) return;
+  sessionStorage.setItem("__auth_failure_at", String(now));
+
+  try {
+    const { toast } = await import("sonner");
+    if (status === 401) {
+      toast.error("Your session has expired. Please sign in again.");
+    } else {
+      toast.error("You don't have permission to view this page.");
+    }
+  } catch {
+    /* toast unavailable — fail silently */
+  }
+
+  if (status === 401) {
+    clearAllSessionState();
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.replace(`/sign-in?next=${next}`);
+  } else if (status === 403) {
+    window.location.replace("/");
+  }
+}
+
 const ADMIN_OR_WEBMASTER: SessionRole[] = ["admin", "webmaster"];
 const WEBMASTER_ONLY: SessionRole[] = ["webmaster"];
+const ANY_SIGNED_IN: SessionRole[] = ["fellow", "admin", "webmaster"];
 
 export const bookingsApi = {
   getAll: (token?: string): Promise<Booking[]> =>
-    apiFetch<Booking[]>("/api/bookings/", {}, { token }),
+    apiFetch<Booking[]>("/api/bookings/", {}, { token, requiredRole: ANY_SIGNED_IN }),
 
   getById: (id: string, token?: string): Promise<Booking> =>
-    apiFetch<Booking>(`/api/bookings/${id}`, {}, { token }),
+    apiFetch<Booking>(`/api/bookings/${id}`, {}, { token, requiredRole: ANY_SIGNED_IN }),
 
   create: (data: Partial<Booking>, token?: string): Promise<Booking[]> =>
-    apiFetch<Booking[]>("/api/bookings/create", { method: "POST", body: JSON.stringify(data) }, { token }),
+    apiFetch<Booking[]>(
+      "/api/bookings/create",
+      { method: "POST", body: JSON.stringify(data) },
+      { token, requiredRole: ANY_SIGNED_IN }
+    ),
 
   update: (id: string, data: Partial<Booking>, token?: string): Promise<Booking[]> =>
-    apiFetch<Booking[]>(`/api/bookings/update/${id}`, { method: "PUT", body: JSON.stringify(data) }, { token }),
+    apiFetch<Booking[]>(
+      `/api/bookings/update/${id}`,
+      { method: "PUT", body: JSON.stringify(data) },
+      { token, requiredRole: ANY_SIGNED_IN }
+    ),
 
   delete: (id: string, token?: string): Promise<void> =>
     apiFetch<void>(
@@ -142,9 +199,10 @@ export const bookingsApi = {
     apiFetch<void>(
       "/api/bookings/notify",
       { method: "POST", body: JSON.stringify(bookingData) },
-      { token }
+      { token, requiredRole: ANY_SIGNED_IN }
     ),
 };
+
 
 // --- File Vault API (per-booking files) ---
 export interface BookingFile {
