@@ -24,6 +24,7 @@ import LegalPage from "./pages/LegalPage";
 import ForcePasswordResetPage from "./pages/ForcePasswordResetPage";
 import ForcePasswordResetGate from "@/components/ForcePasswordResetGate";
 import AuthGuard from "@/components/AuthGuard";
+import AuthTokenBridge from "@/components/AuthTokenBridge";
 
 const queryClient = new QueryClient();
 
