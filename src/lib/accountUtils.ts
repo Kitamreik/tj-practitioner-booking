@@ -58,6 +58,30 @@ export function upsertAccount(account: LocalAccount): LocalAccount[] {
   return next;
 }
 
+/**
+ * Invalidate any currently active local-auth session for the given email.
+ * Called after a webmaster reset so the previously-issued temporary
+ * password (and any session it minted) can no longer be used from this
+ * browser. Cross-browser invalidation happens on next sign-in via the
+ * passwordVersion check.
+ */
+function invalidateActiveSession(email: string): void {
+  try {
+    const raw = localStorage.getItem("local-auth");
+    if (!raw) return;
+    const auth = JSON.parse(raw);
+    if (
+      auth?.email &&
+      typeof auth.email === "string" &&
+      auth.email.toLowerCase() === email.toLowerCase()
+    ) {
+      localStorage.removeItem("local-auth");
+    }
+  } catch {
+    // ignore
+  }
+}
+
 export function resetAccountPassword(email: string): string | null {
   const accounts = readAccounts();
   const idx = accounts.findIndex(
@@ -65,13 +89,16 @@ export function resetAccountPassword(email: string): string | null {
   );
   if (idx === -1) return null;
   const pwd = generatePassword();
+  const prevVersion = accounts[idx].passwordVersion ?? 0;
   accounts[idx] = {
     ...accounts[idx],
     password: pwd,
     passwordUpdatedAt: new Date().toISOString(),
     mustResetPassword: true,
+    passwordVersion: prevVersion + 1,
   };
   writeAccounts(accounts);
+  invalidateActiveSession(accounts[idx].email);
   return pwd;
 }
 
@@ -81,13 +108,36 @@ export function setAccountPassword(email: string, newPassword: string): boolean 
     (a) => a.email.toLowerCase() === email.toLowerCase()
   );
   if (idx === -1) return false;
+  const prevVersion = accounts[idx].passwordVersion ?? 0;
+  const nextVersion = prevVersion + 1;
   accounts[idx] = {
     ...accounts[idx],
     password: newPassword,
     passwordUpdatedAt: new Date().toISOString(),
     mustResetPassword: false,
+    passwordVersion: nextVersion,
   };
   writeAccounts(accounts);
+  // Keep the current session (the user is setting their own password),
+  // but roll the recorded version forward so the gate stays satisfied.
+  try {
+    const raw = localStorage.getItem("local-auth");
+    if (raw) {
+      const auth = JSON.parse(raw);
+      if (
+        auth?.email &&
+        typeof auth.email === "string" &&
+        auth.email.toLowerCase() === email.toLowerCase()
+      ) {
+        localStorage.setItem(
+          "local-auth",
+          JSON.stringify({ ...auth, passwordVersion: nextVersion })
+        );
+      }
+    }
+  } catch {
+    // ignore
+  }
   return true;
 }
 
