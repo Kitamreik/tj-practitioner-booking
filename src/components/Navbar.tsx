@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen, Shield, ClipboardList, UserCircle } from "lucide-react";
+import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, BookOpen, Shield, ClipboardList, UserCircle } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useRole } from "@/lib/roles";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -11,11 +11,53 @@ import { Button } from "@/components/ui/button";
 function useClerkAuth() {
   try {
     const { signOut } = useClerk();
-    const { isSignedIn, isLoaded } = useUser();
-    return { isSignedIn: !!isSignedIn, isLoaded, signOut };
+    const { isSignedIn, isLoaded, user } = useUser();
+    return { isSignedIn: !!isSignedIn, isLoaded, signOut, user };
   } catch {
-    return { isSignedIn: false, isLoaded: true, signOut: null };
+    return { isSignedIn: false, isLoaded: true, signOut: null, user: null };
   }
+}
+
+interface LocalAuth {
+  email?: string;
+  name?: string;
+  role?: string;
+  signedIn?: boolean;
+}
+
+function useDisplayName(): { name: string; role: string } | null {
+  const { user, isSignedIn } = useClerkAuth();
+  const [localAuth, setLocalAuth] = useState<LocalAuth>({});
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        setLocalAuth(JSON.parse(localStorage.getItem("local-auth") || "{}"));
+      } catch {
+        setLocalAuth({});
+      }
+    };
+    read();
+    window.addEventListener("storage", read);
+    return () => window.removeEventListener("storage", read);
+  }, []);
+
+  if (isSignedIn && user) {
+    const name =
+      user.fullName ||
+      [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+      user.primaryEmailAddress?.emailAddress ||
+      "Signed in";
+    const role = (user.publicMetadata?.role as string) || "fellow";
+    return { name, role };
+  }
+  if (localAuth.signedIn && (localAuth.name || localAuth.email)) {
+    return {
+      name: localAuth.name || localAuth.email || "Signed in",
+      role: localAuth.role || "fellow",
+    };
+  }
+  return null;
 }
 
 const Navbar = () => {
@@ -24,6 +66,7 @@ const Navbar = () => {
   const { isSignedIn, signOut } = useClerkAuth();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const displayUser = useDisplayName();
 
   const navItems = [
     { to: "/", label: "Home", icon: HouseIcon, show: true },
@@ -32,7 +75,6 @@ const Navbar = () => {
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isWebmaster || isAdmin },
     { to: "/practicum", label: "Practicum", icon: ClipboardList, show: isFellow },
-    { to: "/profile", label: "Profile", icon: UserCircle, show: isFellow },
     { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);
 
@@ -94,6 +136,14 @@ const Navbar = () => {
 
         {isMobile ? (
           <div className="flex items-center gap-1">
+            {displayUser && (
+              <div className="mr-1 flex max-w-[10rem] items-center gap-1.5 truncate text-xs text-muted-foreground">
+                <UserCircle className="h-4 w-4 shrink-0 text-primary" />
+                <span data-testid="current-user-name" className="truncate font-medium text-foreground">
+                  {displayUser.name}
+                </span>
+              </div>
+            )}
             <ThemeToggle />
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
@@ -104,7 +154,20 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-64">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
-                <nav className="mt-8 flex flex-col gap-2">
+                {displayUser && (
+                  <div className="mt-4 rounded-lg border bg-card/60 p-3">
+                    <div className="flex items-center gap-2">
+                      <UserCircle className="h-5 w-5 text-primary" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-foreground">
+                          {displayUser.name}
+                        </p>
+                        <p className="text-xs capitalize text-muted-foreground">{displayUser.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <nav className="mt-4 flex flex-col gap-2">
                   <NavItems onClick={() => setOpen(false)} />
                   <div className="mt-4">
                     <AuthButton onClick={() => setOpen(false)} />
@@ -117,6 +180,18 @@ const Navbar = () => {
           <nav className="flex items-center gap-1">
             <NavItems />
             <ThemeToggle />
+            {displayUser && (
+              <div
+                className="ml-2 flex items-center gap-1.5 rounded-full border bg-background/50 px-3 py-1.5 text-xs text-muted-foreground"
+                title={`Signed in as ${displayUser.name}`}
+              >
+                <UserCircle className="h-4 w-4 text-primary" />
+                <span data-testid="current-user-name" className="max-w-[10rem] truncate font-medium text-foreground">
+                  {displayUser.name}
+                </span>
+                <span className="hidden capitalize text-muted-foreground sm:inline">· {displayUser.role}</span>
+              </div>
+            )}
             <div className="ml-2">
               <AuthButton />
             </div>

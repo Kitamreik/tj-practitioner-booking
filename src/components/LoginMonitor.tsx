@@ -11,6 +11,7 @@ export interface LoginAttempt {
   success: boolean;
   timestamp: string;
   userAgent?: string;
+  scopes?: string[];
 }
 
 const LOGIN_LOG_KEY = "login_attempts_log";
@@ -62,7 +63,7 @@ const LoginMonitor = () => {
         <div className="space-y-2">
           {logs.map((log) => (
             <Card key={log.id}>
-              <CardContent className="flex items-center justify-between p-4">
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div className="flex items-center gap-3">
                   {log.method === "google" ? (
                     <Chrome className="h-4 w-4 text-primary" />
@@ -74,6 +75,19 @@ const LoginMonitor = () => {
                     <p className="text-xs text-muted-foreground">
                       {log.method === "google" ? "Google OAuth" : "Email/Password"} · {new Date(log.timestamp).toLocaleString()}
                     </p>
+                    {log.method === "google" && log.scopes && log.scopes.length > 0 && (
+                      <div className="mt-1.5 flex flex-wrap gap-1" aria-label="Granted OAuth scopes">
+                        {log.scopes.map((s) => (
+                          <Badge
+                            key={s}
+                            variant="outline"
+                            className="border-primary/20 bg-primary/5 text-[10px] font-mono text-primary"
+                          >
+                            {s}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <Badge variant={log.success ? "default" : "destructive"} className={log.success ? "bg-primary/10 text-primary" : ""}>

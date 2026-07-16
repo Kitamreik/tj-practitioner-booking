@@ -28,7 +28,13 @@ const SignUpPage = () => {
   try {
     const { signUp } = useSignUp();
     signUpWithGoogle = () => {
-      logLoginAttempt({ email: email || "google-oauth", method: "google", success: true });
+      const googleScopes = ["openid", "email", "profile"];
+      logLoginAttempt({
+        email: email || "google-oauth",
+        method: "google",
+        success: true,
+        scopes: googleScopes,
+      });
       signUp?.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",

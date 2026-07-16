@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, GraduationCap, HouseIcon, ClipboardList, UserCircle, Shield } from "lucide-react";
+import { Calendar, LayoutDashboard, GraduationCap, HouseIcon, ClipboardList, Shield } from "lucide-react";
 import { useRole } from "@/lib/roles";
 
 const MobileBottomNav = () => {
@@ -11,7 +11,6 @@ const MobileBottomNav = () => {
     { to: "/api/bookings/", label: "Bookings", icon: Calendar, show: isFellow },
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
     { to: "/practicum", label: "Practicum", icon: ClipboardList, show: isFellow },
-    { to: "/profile", label: "Profile", icon: UserCircle, show: isFellow },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isWebmaster || isAdmin },
     { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);

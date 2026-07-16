@@ -1,26 +1,13 @@
 import { Link } from "react-router-dom";
 import { Calendar, Shield } from "lucide-react";
 import { useLegalDocs } from "@/lib/legalDocs";
-import { useRole } from "@/lib/roles";
 
 const Footer = () => {
   const docs = useLegalDocs();
-  const { isAdmin, isFellow, isWebmaster } = useRole();
-
-  const primary = [
-    { to: "/", label: "Home", show: true },
-    { to: "/reservations", label: "Reservations", show: true },
-    { to: "/api/bookings/", label: "Bookings", show: isFellow },
-    { to: "/fellows", label: "Fellows", show: isFellow },
-    { to: "/practicum", label: "Practicum", show: isFellow },
-    { to: "/profile", label: "Profile", show: isFellow },
-    { to: "/admin", label: "Admin", show: isWebmaster || isAdmin },
-    { to: "/webmaster", label: "Webmaster", show: isWebmaster || isAdmin },
-  ].filter((l) => l.show);
 
   return (
     <footer className="mt-16 border-t bg-card/60">
-      <div className="container grid gap-8 py-10 md:grid-cols-4">
+      <div className="container grid gap-8 py-10 md:grid-cols-3">
         <div className="md:col-span-1">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
@@ -35,19 +22,6 @@ const Footer = () => {
             <Shield className="h-3 w-3" aria-hidden />
             GDPR &middot; OWASP ASVS aligned
           </div>
-        </div>
-
-        <div>
-          <h3 className="font-heading text-sm font-semibold text-foreground">Platform</h3>
-          <ul className="mt-3 space-y-2 text-sm">
-            {primary.map((l) => (
-              <li key={l.to}>
-                <Link to={l.to} className="text-muted-foreground transition-colors hover:text-foreground">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div className="md:col-span-2">
