@@ -58,7 +58,12 @@ const SignInPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (signInWithForm) {
+    // Locally-seeded accounts (demo + webmaster-seeded students) always
+    // authenticate against localStorage, even when Clerk is configured —
+    // otherwise Clerk would reject unknown emails with 422.
+    const seededLocal = findAccount(email);
+    const isDemoEmail = !!DEMO_ACCOUNTS[email.toLowerCase()];
+    if (signInWithForm && !seededLocal && !isDemoEmail) {
       signInWithForm(e);
     } else {
       if (!email || !password) {
