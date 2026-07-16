@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, BookOpen, Shield, ClipboardList, UserCircle } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useState, useEffect } from "react";
@@ -7,6 +7,8 @@ import { useRole } from "@/lib/roles";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { clearAllSessionState } from "@/lib/api";
+import { toast } from "sonner";
 
 function useClerkAuth() {
   try {
