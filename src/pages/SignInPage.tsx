@@ -50,7 +50,7 @@ const SignInPage = () => {
       signIn?.create({ identifier: email, password }).then((result) => {
         if (result.status === "complete") {
           logLoginAttempt({ email, method: "local", success: true });
-          window.location.href = "/";
+          window.location.href = safeNext;
         }
       }).catch(() => {
         logLoginAttempt({ email, method: "local", success: false });
@@ -91,7 +91,7 @@ const SignInPage = () => {
         localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
         logLoginAttempt({ email, method: "local", success: true });
         toast.success(`Signed in as ${demo.name} (${demo.role}).`);
-        window.location.href = "/";
+        window.location.href = safeNext;
         return;
       }
       // Check webmaster-seeded / locally-registered accounts
@@ -119,7 +119,7 @@ const SignInPage = () => {
           window.location.href = "/force-password-reset";
         } else {
           toast.success(`Signed in as ${seeded.name} (${seeded.role}).`);
-          window.location.href = "/";
+          window.location.href = safeNext;
         }
         return;
       }
@@ -127,7 +127,7 @@ const SignInPage = () => {
       localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true, role: "fellow" }));
       logLoginAttempt({ email, method: "local", success: true });
       toast.success("Signed in locally (demo mode).");
-      window.location.href = "/";
+      window.location.href = safeNext;
     }
   };
 
@@ -136,7 +136,7 @@ const SignInPage = () => {
     localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
     logLoginAttempt({ email, method: "local", success: true });
     toast.success(`Signed in as ${demo.name} (${demo.role}).`);
-    window.location.href = "/";
+    window.location.href = safeNext;
   };
 
   const handleGoogle = () => {
