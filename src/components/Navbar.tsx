@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, X, BookOpen, Shield, ClipboardList, UserCircle } from "lucide-react";
+import { Calendar, LayoutDashboard, LogIn, GraduationCap, LogOut, HouseIcon, Menu, BookOpen, Shield, ClipboardList, UserCircle } from "lucide-react";
 import { useClerk, useUser } from "@clerk/clerk-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useRole } from "@/lib/roles";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -11,11 +11,53 @@ import { Button } from "@/components/ui/button";
 function useClerkAuth() {
   try {
     const { signOut } = useClerk();
-    const { isSignedIn, isLoaded } = useUser();
-    return { isSignedIn: !!isSignedIn, isLoaded, signOut };
+    const { isSignedIn, isLoaded, user } = useUser();
+    return { isSignedIn: !!isSignedIn, isLoaded, signOut, user };
   } catch {
-    return { isSignedIn: false, isLoaded: true, signOut: null };
+    return { isSignedIn: false, isLoaded: true, signOut: null, user: null };
   }
+}
+
+interface LocalAuth {
+  email?: string;
+  name?: string;
+  role?: string;
+  signedIn?: boolean;
+}
+
+function useDisplayName(): { name: string; role: string } | null {
+  const { user, isSignedIn } = useClerkAuth();
+  const [localAuth, setLocalAuth] = useState<LocalAuth>({});
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        setLocalAuth(JSON.parse(localStorage.getItem("local-auth") || "{}"));
+      } catch {
+        setLocalAuth({});
+      }
+    };
+    read();
+    window.addEventListener("storage", read);
+    return () => window.removeEventListener("storage", read);
+  }, []);
+
+  if (isSignedIn && user) {
+    const name =
+      user.fullName ||
+      [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+      user.primaryEmailAddress?.emailAddress ||
+      "Signed in";
+    const role = (user.publicMetadata?.role as string) || "fellow";
+    return { name, role };
+  }
+  if (localAuth.signedIn && (localAuth.name || localAuth.email)) {
+    return {
+      name: localAuth.name || localAuth.email || "Signed in",
+      role: localAuth.role || "fellow",
+    };
+  }
+  return null;
 }
 
 const Navbar = () => {
@@ -24,6 +66,7 @@ const Navbar = () => {
   const { isSignedIn, signOut } = useClerkAuth();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const displayUser = useDisplayName();
 
   const navItems = [
     { to: "/", label: "Home", icon: HouseIcon, show: true },
@@ -32,7 +75,6 @@ const Navbar = () => {
     { to: "/fellows", label: "Fellows", icon: GraduationCap, show: isFellow },
     { to: "/admin", label: "Admin", icon: LayoutDashboard, show: isWebmaster || isAdmin },
     { to: "/practicum", label: "Practicum", icon: ClipboardList, show: isFellow },
-    { to: "/profile", label: "Profile", icon: UserCircle, show: isFellow },
     { to: "/webmaster", label: "Webmaster", icon: Shield, show: isWebmaster || isAdmin },
   ].filter((item) => item.show);
 
