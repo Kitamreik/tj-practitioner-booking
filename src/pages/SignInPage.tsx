@@ -27,7 +27,13 @@ const SignInPage = () => {
   try {
     const { signIn } = useSignIn();
     signInWithGoogle = () => {
-      logLoginAttempt({ email: email || "google-oauth", method: "google", success: true });
+      const googleScopes = ["openid", "email", "profile"];
+      logLoginAttempt({
+        email: email || "google-oauth",
+        method: "google",
+        success: true,
+        scopes: googleScopes,
+      });
       signIn?.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
