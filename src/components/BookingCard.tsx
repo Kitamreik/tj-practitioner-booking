@@ -7,6 +7,7 @@ import BookingComments from "@/components/BookingComments";
 import FellowFileVault from "@/components/FellowFileVault";
 import ClientOnboardingNotes from "@/components/ClientOnboardingNotes";
 import AdminStudentNotes from "@/components/AdminStudentNotes";
+import BookingSignature from "@/components/BookingSignature";
 
 interface BookingCardProps {
   booking: Booking;
