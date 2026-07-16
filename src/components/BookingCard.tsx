@@ -68,16 +68,26 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false, viewMode 
           </div>
         </div>
 
-        {/* Comments - above edit button */}
-        {viewMode && <BookingComments bookingId={booking.id} canEdit={viewMode === "fellow" || viewMode === "admin"} />}
-
-        {/* Client Onboarding Notes - admin-editable scenario seeds */}
+        {/* 1. Client Onboarding Notes — admin-editable scenario seeds */}
         {viewMode && (
           <ClientOnboardingNotes
             bookingId={booking.id}
             service={booking.service}
             canEdit={viewMode === "admin"}
           />
+        )}
+
+        {/* 2. Comments (oldest → newest) */}
+        {viewMode && <BookingComments bookingId={booking.id} canEdit={viewMode === "fellow" || viewMode === "admin"} />}
+
+        {/* 3. Admin Notes */}
+        {viewMode && (
+          <AdminStudentNotes bookingId={booking.id} canEdit={viewMode === "admin"} />
+        )}
+
+        {/* 4. Signature (manual name entry, persisted locally) */}
+        {viewMode && (
+          <BookingSignature bookingId={booking.id} canEdit={viewMode === "fellow" || viewMode === "admin"} />
         )}
 
         {showActions && (
@@ -91,9 +101,6 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false, viewMode 
           </div>
         )}
         {showActions && <BookingChecklist bookingId={booking.id} />}
-        {viewMode && (
-          <AdminStudentNotes bookingId={booking.id} canEdit={viewMode === "admin"} />
-        )}
 
         {/* Fellow File Vault */}
         {viewMode && (
