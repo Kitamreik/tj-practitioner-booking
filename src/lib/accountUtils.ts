@@ -9,6 +9,7 @@ export interface LocalAccount {
   createdAt: string;
   password?: string;
   passwordUpdatedAt?: string;
+  mustResetPassword?: boolean;
 }
 
 export const ACCOUNTS_KEY = "registered_accounts";
