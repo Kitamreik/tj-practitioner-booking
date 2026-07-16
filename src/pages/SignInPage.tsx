@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useSignIn } from "@clerk/clerk-react";
 import { logLoginAttempt } from "@/components/LoginMonitor";
 import { useFeatureFlags } from "@/lib/featureFlags";
+import { findAccount } from "@/lib/accountUtils";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
