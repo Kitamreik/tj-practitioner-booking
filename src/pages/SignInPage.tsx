@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useSignIn } from "@clerk/clerk-react";
 import { logLoginAttempt } from "@/components/LoginMonitor";
 import { useFeatureFlags } from "@/lib/featureFlags";
+import { findAccount } from "@/lib/accountUtils";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -57,7 +58,12 @@ const SignInPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (signInWithForm) {
+    // Locally-seeded accounts (demo + webmaster-seeded students) always
+    // authenticate against localStorage, even when Clerk is configured —
+    // otherwise Clerk would reject unknown emails with 422.
+    const seededLocal = findAccount(email);
+    const isDemoEmail = !!DEMO_ACCOUNTS[email.toLowerCase()];
+    if (signInWithForm && !seededLocal && !isDemoEmail) {
       signInWithForm(e);
     } else {
       if (!email || !password) {
@@ -74,6 +80,23 @@ const SignInPage = () => {
         localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
         logLoginAttempt({ email, method: "local", success: true });
         toast.success(`Signed in as ${demo.name} (${demo.role}).`);
+        window.location.href = "/";
+        return;
+      }
+      // Check webmaster-seeded / locally-registered accounts
+      const seeded = findAccount(email);
+      if (seeded && seeded.password) {
+        if (password !== seeded.password) {
+          logLoginAttempt({ email, method: "local", success: false });
+          toast.error("Invalid password.");
+          return;
+        }
+        localStorage.setItem(
+          "local-auth",
+          JSON.stringify({ email: seeded.email, name: seeded.name, signedIn: true, role: seeded.role })
+        );
+        logLoginAttempt({ email, method: "local", success: true });
+        toast.success(`Signed in as ${seeded.name} (${seeded.role}).`);
         window.location.href = "/";
         return;
       }
