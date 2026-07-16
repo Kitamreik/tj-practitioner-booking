@@ -33,13 +33,18 @@ const BookingComments = ({ bookingId, canEdit = true }: BookingCommentsProps) =>
   const [editText, setEditText] = useState("");
   const [usingLocal, setUsingLocal] = useState(false);
 
+  const sortAsc = (list: BookingComment[]) =>
+    [...list].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+
   const fetchComments = useCallback(async () => {
     try {
       const data = await commentsApi.getByBooking(bookingId);
-      setComments(data);
+      setComments(sortAsc(data));
       setUsingLocal(false);
     } catch {
-      setComments(loadLocal(bookingId));
+      setComments(sortAsc(loadLocal(bookingId)));
       setUsingLocal(true);
     }
   }, [bookingId]);
@@ -49,8 +54,9 @@ const BookingComments = ({ bookingId, canEdit = true }: BookingCommentsProps) =>
   }, [fetchComments]);
 
   const persist = (updated: BookingComment[]) => {
-    setComments(updated);
-    if (usingLocal) saveLocal(bookingId, updated);
+    const sorted = sortAsc(updated);
+    setComments(sorted);
+    if (usingLocal) saveLocal(bookingId, sorted);
   };
 
   const handleAdd = async () => {
@@ -59,14 +65,14 @@ const BookingComments = ({ bookingId, canEdit = true }: BookingCommentsProps) =>
     try {
       if (!usingLocal) {
         const created = await commentsApi.create(commentData);
-        setComments((prev) => [created, ...prev]);
+        setComments((prev) => sortAsc([...prev, created]));
       } else {
         const local: BookingComment = { ...commentData, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-        persist([local, ...comments]);
+        persist([...comments, local]);
       }
     } catch {
       const local: BookingComment = { ...commentData, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-      persist([local, ...comments]);
+      persist([...comments, local]);
     }
     setNewText("");
   };
