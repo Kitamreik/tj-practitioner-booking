@@ -105,6 +105,7 @@ const SignInPage = () => {
             signedIn: true,
             role: seeded.role,
             mustResetPassword: !!seeded.mustResetPassword,
+            passwordVersion: seeded.passwordVersion ?? 0,
           })
         );
         logLoginAttempt({ email, method: "local", success: true });
