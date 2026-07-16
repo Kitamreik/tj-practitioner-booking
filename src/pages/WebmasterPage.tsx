@@ -304,6 +304,9 @@ const WebmasterPage = () => {
 
       {/* Production toggles (demo accounts, Google sign-in) */}
       <ProductionToggles />
+
+      {/* Legal & compliance documents (edit requires credential re-verification) */}
+      <LegalDocsManager />
     </div>
   );
 };
