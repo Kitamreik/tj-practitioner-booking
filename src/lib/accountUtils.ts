@@ -10,6 +10,13 @@ export interface LocalAccount {
   password?: string;
   passwordUpdatedAt?: string;
   mustResetPassword?: boolean;
+  /**
+   * Monotonic counter bumped every time the password changes (webmaster
+   * reset or user-chosen). Any active session that was minted before this
+   * value is considered invalidated — the sign-in flow records the
+   * version it authenticated against, and the gate signs out mismatches.
+   */
+  passwordVersion?: number;
 }
 
 export const ACCOUNTS_KEY = "registered_accounts";
