@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Calendar, Mail, Lock, ArrowRight, GraduationCap, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useSignIn } from "@clerk/clerk-react";
@@ -20,6 +20,11 @@ const SignInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const flags = useFeatureFlags();
+  const location = useLocation();
+  // Post-auth destination from AuthGuard (`?next=/protected/path`). We only
+  // honor same-origin relative paths to avoid open-redirect abuse.
+  const nextParam = new URLSearchParams(location.search).get("next") || "";
+  const safeNext = nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
 
   let signInWithGoogle: (() => void) | null = null;
   let signInWithForm: ((e: React.FormEvent) => void) | null = null;
@@ -45,7 +50,7 @@ const SignInPage = () => {
       signIn?.create({ identifier: email, password }).then((result) => {
         if (result.status === "complete") {
           logLoginAttempt({ email, method: "local", success: true });
-          window.location.href = "/";
+          window.location.href = safeNext;
         }
       }).catch(() => {
         logLoginAttempt({ email, method: "local", success: false });
@@ -86,7 +91,7 @@ const SignInPage = () => {
         localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
         logLoginAttempt({ email, method: "local", success: true });
         toast.success(`Signed in as ${demo.name} (${demo.role}).`);
-        window.location.href = "/";
+        window.location.href = safeNext;
         return;
       }
       // Check webmaster-seeded / locally-registered accounts
@@ -114,7 +119,7 @@ const SignInPage = () => {
           window.location.href = "/force-password-reset";
         } else {
           toast.success(`Signed in as ${seeded.name} (${seeded.role}).`);
-          window.location.href = "/";
+          window.location.href = safeNext;
         }
         return;
       }
@@ -122,7 +127,7 @@ const SignInPage = () => {
       localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true, role: "fellow" }));
       logLoginAttempt({ email, method: "local", success: true });
       toast.success("Signed in locally (demo mode).");
-      window.location.href = "/";
+      window.location.href = safeNext;
     }
   };
 
@@ -131,7 +136,7 @@ const SignInPage = () => {
     localStorage.setItem("local-auth", JSON.stringify({ email, name: demo.name, signedIn: true, role: demo.role }));
     logLoginAttempt({ email, method: "local", success: true });
     toast.success(`Signed in as ${demo.name} (${demo.role}).`);
-    window.location.href = "/";
+    window.location.href = safeNext;
   };
 
   const handleGoogle = () => {

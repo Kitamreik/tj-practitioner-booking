@@ -23,6 +23,7 @@ import ProfilePage from "./pages/ProfilePage";
 import LegalPage from "./pages/LegalPage";
 import ForcePasswordResetPage from "./pages/ForcePasswordResetPage";
 import ForcePasswordResetGate from "@/components/ForcePasswordResetGate";
+import AuthGuard from "@/components/AuthGuard";
 
 const queryClient = new QueryClient();
 
@@ -39,30 +40,55 @@ const AppContent = () => (
         <div className="pb-16 md:pb-0">
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/reservations" element={<ReservationsPage />} />
+          <Route
+            path="/reservations"
+            element={
+              <AuthGuard>
+                <ReservationsPage />
+              </AuthGuard>
+            }
+          />
           <Route path="/api/bookings/" element={<FellowsPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/fellows" element={<BookingsPage />} />
-          {/* Role Guard */}
-          {/* <Route
+          <Route
             path="/admin"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <AuthGuard allowedRoles={["admin", "webmaster"]}>
                 <AdminPage />
-              </RoleGuard>
+              </AuthGuard>
             }
           />
           <Route
             path="/fellows"
             element={
-              <RoleGuard allowedRoles={["fellow"]}>
-                <FellowsPage />
-              </RoleGuard>
+              <AuthGuard allowedRoles={["fellow", "admin", "webmaster"]}>
+                <BookingsPage />
+              </AuthGuard>
             }
-          /> */}
-          <Route path="/practicum" element={<PracticumPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/webmaster" element={<WebmasterPage />} />
+          />
+          <Route
+            path="/practicum"
+            element={
+              <AuthGuard>
+                <PracticumPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <AuthGuard>
+                <ProfilePage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/webmaster"
+            element={
+              <AuthGuard allowedRoles={["webmaster"]}>
+                <WebmasterPage />
+              </AuthGuard>
+            }
+          />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/sso-callback" element={<SSOCallbackPage />} />
