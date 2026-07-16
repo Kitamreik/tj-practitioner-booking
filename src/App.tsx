@@ -21,6 +21,8 @@ import WebmasterPage from "./pages/WebmasterPage";
 import PracticumPage from "./pages/PracticumPage";
 import ProfilePage from "./pages/ProfilePage";
 import LegalPage from "./pages/LegalPage";
+import ForcePasswordResetPage from "./pages/ForcePasswordResetPage";
+import ForcePasswordResetGate from "@/components/ForcePasswordResetGate";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,7 @@ const AppContent = () => (
       <Sonner />
       <BrowserRouter>
         <Navbar />
+        <ForcePasswordResetGate />
         <div className="pb-16 md:pb-0">
         <Routes>
           <Route path="/" element={<Index />} />
@@ -64,6 +67,7 @@ const AppContent = () => (
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/sso-callback" element={<SSOCallbackPage />} />
           <Route path="/legal/:slug" element={<LegalPage />} />
+          <Route path="/force-password-reset" element={<ForcePasswordResetPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </div>
