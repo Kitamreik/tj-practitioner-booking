@@ -93,10 +93,13 @@ const AuthGuard = ({
   }
 
   if (allowedRoles && allowedRoles.length > 0) {
-    const role: AppRole =
-      (clerkUser?.publicMetadata?.role as AppRole) ||
-      (localAuth.role as AppRole) ||
-      "fellow";
+    // Clerk-authenticated users (e.g. Google OAuth) without explicit
+    // publicMetadata.role are treated as "webmaster" so they can reach
+    // both the admin and webmaster pages. Local-auth users keep their
+    // seeded role.
+    const role: AppRole = clerkSignedIn
+      ? ((clerkUser?.publicMetadata?.role as AppRole) || "webmaster")
+      : ((localAuth.role as AppRole) || "fellow");
     if (!allowedRoles.includes(role)) {
       return <Navigate to={forbiddenPath} replace />;
     }
