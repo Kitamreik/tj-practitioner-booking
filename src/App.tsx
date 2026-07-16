@@ -36,6 +36,7 @@ const AppContent = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AuthTokenBridge />
         <Navbar />
         <ForcePasswordResetGate />
         <div className="pb-16 md:pb-0">
