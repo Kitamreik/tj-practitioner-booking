@@ -20,6 +20,11 @@ const SignInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const flags = useFeatureFlags();
+  const location = useLocation();
+  // Post-auth destination from AuthGuard (`?next=/protected/path`). We only
+  // honor same-origin relative paths to avoid open-redirect abuse.
+  const nextParam = new URLSearchParams(location.search).get("next") || "";
+  const safeNext = nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
 
   let signInWithGoogle: (() => void) | null = null;
   let signInWithForm: ((e: React.FormEvent) => void) | null = null;
