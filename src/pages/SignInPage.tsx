@@ -93,11 +93,22 @@ const SignInPage = () => {
         }
         localStorage.setItem(
           "local-auth",
-          JSON.stringify({ email: seeded.email, name: seeded.name, signedIn: true, role: seeded.role })
+          JSON.stringify({
+            email: seeded.email,
+            name: seeded.name,
+            signedIn: true,
+            role: seeded.role,
+            mustResetPassword: !!seeded.mustResetPassword,
+          })
         );
         logLoginAttempt({ email, method: "local", success: true });
-        toast.success(`Signed in as ${seeded.name} (${seeded.role}).`);
-        window.location.href = "/";
+        if (seeded.mustResetPassword) {
+          toast.info("Please set a new password to continue.");
+          window.location.href = "/force-password-reset";
+        } else {
+          toast.success(`Signed in as ${seeded.name} (${seeded.role}).`);
+          window.location.href = "/";
+        }
         return;
       }
       // Default local sign-in as fellow

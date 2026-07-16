@@ -68,6 +68,7 @@ const SeedStudentDialog = ({ onSeeded }: Props) => {
       createdAt: new Date().toISOString(),
       password,
       passwordUpdatedAt: new Date().toISOString(),
+      mustResetPassword: true,
     };
     upsertAccount(account);
     onSeeded?.(account);
