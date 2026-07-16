@@ -62,9 +62,26 @@ export function resetAccountPassword(email: string): string | null {
     ...accounts[idx],
     password: pwd,
     passwordUpdatedAt: new Date().toISOString(),
+    mustResetPassword: true,
   };
   writeAccounts(accounts);
   return pwd;
+}
+
+export function setAccountPassword(email: string, newPassword: string): boolean {
+  const accounts = readAccounts();
+  const idx = accounts.findIndex(
+    (a) => a.email.toLowerCase() === email.toLowerCase()
+  );
+  if (idx === -1) return false;
+  accounts[idx] = {
+    ...accounts[idx],
+    password: newPassword,
+    passwordUpdatedAt: new Date().toISOString(),
+    mustResetPassword: false,
+  };
+  writeAccounts(accounts);
+  return true;
 }
 
 export function findAccount(email: string): LocalAccount | undefined {
