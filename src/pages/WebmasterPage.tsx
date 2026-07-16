@@ -6,6 +6,7 @@ import RegisteredAccountsList from "@/components/RegisteredAccountsList";
 import ProfileEditLog from "@/components/ProfileEditLog";
 import PasswordResetEmailDialog from "@/components/PasswordResetEmailDialog";
 import CreateUserDialog from "@/components/CreateUserDialog";
+import SeedStudentDialog from "@/components/SeedStudentDialog";
 import ProductionToggles from "@/components/ProductionToggles";
 import LegalDocsManager from "@/components/LegalDocsManager";
 import { Shield, Users, Pencil, Trash2, Mail, Search, Loader2, AlertTriangle } from "lucide-react";
@@ -144,7 +145,21 @@ const WebmasterPage = () => {
         </Badge>
       </div>
 
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex flex-wrap justify-end gap-2">
+        <SeedStudentDialog
+          onSeeded={(acct) =>
+            setUsers((prev) => [
+              {
+                id: `seed-${Date.now()}`,
+                email: acct.email,
+                name: acct.name,
+                role: acct.role,
+                createdAt: acct.createdAt,
+              },
+              ...prev,
+            ])
+          }
+        />
         <CreateUserDialog onCreated={(u) => setUsers((prev) => [u, ...prev])} />
       </div>
 
