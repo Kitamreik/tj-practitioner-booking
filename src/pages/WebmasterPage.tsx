@@ -7,6 +7,7 @@ import ProfileEditLog from "@/components/ProfileEditLog";
 import PasswordResetEmailDialog from "@/components/PasswordResetEmailDialog";
 import CreateUserDialog from "@/components/CreateUserDialog";
 import ProductionToggles from "@/components/ProductionToggles";
+import LegalDocsManager from "@/components/LegalDocsManager";
 import { Shield, Users, Pencil, Trash2, Mail, Search, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -303,6 +304,9 @@ const WebmasterPage = () => {
 
       {/* Production toggles (demo accounts, Google sign-in) */}
       <ProductionToggles />
+
+      {/* Legal & compliance documents (edit requires credential re-verification) */}
+      <LegalDocsManager />
     </div>
   );
 };

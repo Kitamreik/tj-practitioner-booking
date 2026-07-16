@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import Footer from "@/components/Footer";
 // import RoleGuard from "@/components/RoleGuard";
 import Index from "./pages/Index";
 import BookingsPage from "./pages/BookingsPage";
@@ -19,6 +20,7 @@ import SSOCallbackPage from "./pages/SSOCallbackPage";
 import WebmasterPage from "./pages/WebmasterPage";
 import PracticumPage from "./pages/PracticumPage";
 import ProfilePage from "./pages/ProfilePage";
+import LegalPage from "./pages/LegalPage";
 
 const queryClient = new QueryClient();
 
@@ -61,9 +63,11 @@ const AppContent = () => (
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/sso-callback" element={<SSOCallbackPage />} />
+          <Route path="/legal/:slug" element={<LegalPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </div>
+        <Footer />
         <MobileBottomNav />
       </BrowserRouter>
     </TooltipProvider>
