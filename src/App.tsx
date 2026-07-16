@@ -50,7 +50,14 @@ const AppContent = () => (
               </AuthGuard>
             }
           />
-          <Route path="/api/bookings/" element={<FellowsPage />} />
+          <Route
+            path="/api/bookings/"
+            element={
+              <AuthGuard allowedRoles={["fellow", "admin", "webmaster"]}>
+                <FellowsPage />
+              </AuthGuard>
+            }
+          />
           <Route
             path="/admin"
             element={
