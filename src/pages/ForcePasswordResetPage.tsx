@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, ShieldAlert, ArrowRight } from "lucide-react";
+import { Lock, ShieldAlert, ArrowRight, Check, X, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { setAccountPassword, findAccount } from "@/lib/accountUtils";
 
