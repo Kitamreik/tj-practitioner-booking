@@ -136,6 +136,14 @@ const Navbar = () => {
 
         {isMobile ? (
           <div className="flex items-center gap-1">
+            {displayUser && (
+              <div className="mr-1 flex max-w-[10rem] items-center gap-1.5 truncate text-xs text-muted-foreground">
+                <UserCircle className="h-4 w-4 shrink-0 text-primary" />
+                <span data-testid="current-user-name" className="truncate font-medium text-foreground">
+                  {displayUser.name}
+                </span>
+              </div>
+            )}
             <ThemeToggle />
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
@@ -146,7 +154,20 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-64">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
-                <nav className="mt-8 flex flex-col gap-2">
+                {displayUser && (
+                  <div className="mt-4 rounded-lg border bg-card/60 p-3">
+                    <div className="flex items-center gap-2">
+                      <UserCircle className="h-5 w-5 text-primary" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-foreground">
+                          {displayUser.name}
+                        </p>
+                        <p className="text-xs capitalize text-muted-foreground">{displayUser.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <nav className="mt-4 flex flex-col gap-2">
                   <NavItems onClick={() => setOpen(false)} />
                   <div className="mt-4">
                     <AuthButton onClick={() => setOpen(false)} />
@@ -159,6 +180,18 @@ const Navbar = () => {
           <nav className="flex items-center gap-1">
             <NavItems />
             <ThemeToggle />
+            {displayUser && (
+              <div
+                className="ml-2 flex items-center gap-1.5 rounded-full border bg-background/50 px-3 py-1.5 text-xs text-muted-foreground"
+                title={`Signed in as ${displayUser.name}`}
+              >
+                <UserCircle className="h-4 w-4 text-primary" />
+                <span data-testid="current-user-name" className="max-w-[10rem] truncate font-medium text-foreground">
+                  {displayUser.name}
+                </span>
+                <span className="hidden capitalize text-muted-foreground sm:inline">· {displayUser.role}</span>
+              </div>
+            )}
             <div className="ml-2">
               <AuthButton />
             </div>
