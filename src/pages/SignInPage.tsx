@@ -78,6 +78,23 @@ const SignInPage = () => {
         window.location.href = "/";
         return;
       }
+      // Check webmaster-seeded / locally-registered accounts
+      const seeded = findAccount(email);
+      if (seeded && seeded.password) {
+        if (password !== seeded.password) {
+          logLoginAttempt({ email, method: "local", success: false });
+          toast.error("Invalid password.");
+          return;
+        }
+        localStorage.setItem(
+          "local-auth",
+          JSON.stringify({ email: seeded.email, name: seeded.name, signedIn: true, role: seeded.role })
+        );
+        logLoginAttempt({ email, method: "local", success: true });
+        toast.success(`Signed in as ${seeded.name} (${seeded.role}).`);
+        window.location.href = "/";
+        return;
+      }
       // Default local sign-in as fellow
       localStorage.setItem("local-auth", JSON.stringify({ email, signedIn: true, role: "fellow" }));
       logLoginAttempt({ email, method: "local", success: true });
