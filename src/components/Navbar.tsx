@@ -64,11 +64,34 @@ function useDisplayName(): { name: string; role: string } | null {
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAdmin, isFellow, isWebmaster } = useRole();
-  const { isSignedIn, signOut } = useClerkAuth();
+  const { isSignedIn: clerkSignedIn, signOut } = useClerkAuth();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const displayUser = useDisplayName();
+
+  // A user is signed in if EITHER Clerk has a session OR local-auth is set.
+  // Previously the sign-out button only appeared for Clerk users, so
+  // admins/webmasters signed in via the local-auth fallback had no way to
+  // end their session from the nav bar.
+  const signedIn = clerkSignedIn || !!displayUser;
+
+  const handleSignOut = async () => {
+    try {
+      // Always wipe local-auth + advisory role hints first so an in-flight
+      // Clerk call can't race a stale session back into the app.
+      clearAllSessionState();
+      if (clerkSignedIn && signOut) {
+        await signOut({ redirectUrl: "/" });
+      } else {
+        navigate("/", { replace: true });
+      }
+      toast.success("Signed out");
+    } catch {
+      toast.error("Sign out failed — please refresh.");
+    }
+  };
 
   const navItems = [
     { to: "/", label: "Home", icon: HouseIcon, show: true },
@@ -104,10 +127,11 @@ const Navbar = () => {
   );
 
   const AuthButton = ({ onClick }: { onClick?: () => void }) =>
-    isSignedIn && signOut ? (
+    signedIn ? (
       <button
-        onClick={() => {
-          signOut({ redirectUrl: "/" });
+        data-testid="sign-out-button"
+        onClick={async () => {
+          await handleSignOut();
           onClick?.();
         }}
         className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
