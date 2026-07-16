@@ -7,6 +7,31 @@ ISO-8601 (YYYY-MM-DD).
 
 ### Security
 
+- **Client-side authorization guards on privileged API endpoints.** The
+  shared `apiFetch` helper (`src/lib/api.ts`) now blocks calls to admin- and
+  webmaster-only routes when the active session role isn't permitted, and
+  auto-attaches a Clerk JWT (via the new `AuthTokenBridge` component) plus
+  advisory `X-User-Email` / `X-User-Role` headers on every request. All
+  `usersApi.*` mutations and `adminStudentNotesApi.save` /
+  `onboardingApi.saveAll` / `bookingsApi.delete` are marked `requiredRole:
+  webmaster` or `admin|webmaster`, so a fellow (or an unauthenticated
+  visitor) calling them directly from the console throws before any network
+  request goes out.
+  This is defense-in-depth only — the Render/Express backend is a separate
+  repository and remains the source of truth for authorization. It is
+  expected to verify the `Authorization: Bearer <jwt>` header against
+  Clerk's JWKS and reject any request whose verified role/claim is not
+  permitted for the endpoint. The frontend cannot enforce that on its own.
+- **Sign Out available for every signed-in session.** The nav bar sign-out
+  button previously only rendered for Clerk sessions, leaving local-auth
+  admin/webmaster fallbacks with no way to end a session from the UI. The
+  button now shows whenever either a Clerk or local-auth session is active
+  and clears both — `clearAllSessionState()` wipes `local-auth` and the
+  registered auth-token provider before `clerk.signOut()` runs, so an
+  in-flight request can't race a stale session back into the app.
+
+
+
 - **Upgraded `recharts` from `^2.15.4` to pinned `3.9.2`** to eliminate its
   transitive dependency on `lodash`, resolving three advisories surfaced by
   the dependency scanner:
