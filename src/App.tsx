@@ -63,9 +63,11 @@ const AppContent = () => (
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/sso-callback" element={<SSOCallbackPage />} />
+          <Route path="/legal/:slug" element={<LegalPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </div>
+        <Footer />
         <MobileBottomNav />
       </BrowserRouter>
     </TooltipProvider>
