@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, UserCheck, KeyRound, Copy, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Trash2, UserCheck, KeyRound, Copy, Check, Eye, EyeOff, Pencil } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -16,6 +17,7 @@ import {
   readAccounts,
   writeAccounts,
   resetAccountPassword,
+  setAccountPassword,
   type LocalAccount,
 } from "@/lib/accountUtils";
 
@@ -37,6 +39,10 @@ const RegisteredAccountsList = () => {
   const [deleteTarget, setDeleteTarget] = useState<LocalAccount | null>(null);
   const [resetResult, setResetResult] = useState<{ email: string; name: string; password: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [changeTarget, setChangeTarget] = useState<LocalAccount | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const loadAccounts = useCallback(() => {
     setAccounts(sortNewestFirst(readAccounts()));
@@ -119,8 +125,60 @@ const RegisteredAccountsList = () => {
                       Added {new Date(acct.createdAt).toLocaleString()}
                     </p>
                   )}
+                  {acct.password && (
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <span className="text-[11px] text-muted-foreground">Password:</span>
+                      <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px]">
+                        {revealed[acct.email] ? acct.password : "••••••••••"}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={() =>
+                          setRevealed((r) => ({ ...r, [acct.email]: !r[acct.email] }))
+                        }
+                        aria-label={revealed[acct.email] ? "Hide password" : "Show password"}
+                      >
+                        {revealed[acct.email] ? (
+                          <EyeOff className="h-3 w-3" />
+                        ) : (
+                          <Eye className="h-3 w-3" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(acct.password!);
+                            toast.success("Password copied");
+                          } catch {
+                            toast.error("Copy failed");
+                          }
+                        }}
+                        aria-label="Copy password"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setChangeTarget(acct);
+                      setNewPassword("");
+                      setConfirmPassword("");
+                    }}
+                    className="gap-1"
+                    aria-label={`Change password for ${acct.email}`}
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Change password
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"
@@ -128,7 +186,7 @@ const RegisteredAccountsList = () => {
                     className="gap-1"
                     aria-label={`Reset password for ${acct.email}`}
                   >
-                    <KeyRound className="h-3.5 w-3.5" /> Reset password
+                    <KeyRound className="h-3.5 w-3.5" /> Reset
                   </Button>
                   {acct.role !== "webmaster" && (
                     <Button
@@ -189,6 +247,69 @@ const RegisteredAccountsList = () => {
           </div>
           <DialogFooter>
             <Button onClick={() => { setResetResult(null); setCopied(false); }}>Done</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!changeTarget}
+        onOpenChange={(o) => { if (!o) { setChangeTarget(null); setNewPassword(""); setConfirmPassword(""); } }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change password</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <p className="text-sm text-muted-foreground">
+              Set a new password for <strong>{changeTarget?.name}</strong> ({changeTarget?.email}).
+            </p>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">New password</label>
+              <Input
+                type="text"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="font-mono"
+                placeholder="Min 8 characters"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Confirm password</label>
+              <Input
+                type="text"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="font-mono"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setChangeTarget(null)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                if (!changeTarget) return;
+                if (newPassword.length < 8) {
+                  toast.error("Password must be at least 8 characters.");
+                  return;
+                }
+                if (newPassword !== confirmPassword) {
+                  toast.error("Passwords do not match.");
+                  return;
+                }
+                const ok = setAccountPassword(changeTarget.email, newPassword);
+                if (ok) {
+                  toast.success(`Password updated for ${changeTarget.email}`);
+                  loadAccounts();
+                  setChangeTarget(null);
+                  setNewPassword("");
+                  setConfirmPassword("");
+                } else {
+                  toast.error("Could not update password.");
+                }
+              }}
+            >
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

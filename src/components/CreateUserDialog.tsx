@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/select";
 import { usersApi, type AppUser } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  generatePassword,
+  upsertAccount,
+  findAccount,
+  type LocalAccount,
+} from "@/lib/accountUtils";
 
 interface CreateUserDialogProps {
   onCreated: (user: AppUser) => void;
@@ -34,21 +40,39 @@ const CreateUserDialog = ({ onCreated }: CreateUserDialogProps) => {
       toast.error("Name and email are required.");
       return;
     }
+    if (findAccount(email.trim())) {
+      toast.error("An account with that email already exists locally.");
+      return;
+    }
     setBusy(true);
+    const generated = generatePassword();
+    const localAccount: LocalAccount = {
+      email: email.trim(),
+      name: name.trim(),
+      role,
+      signedIn: false,
+      createdAt: new Date().toISOString(),
+      password: generated,
+      passwordUpdatedAt: new Date().toISOString(),
+      mustResetPassword: true,
+      passwordVersion: 1,
+    };
     try {
       const user = await usersApi.create({ name: name.trim(), email: email.trim(), role });
+      upsertAccount({ ...localAccount, email: user.email, name: user.name, role: user.role });
       onCreated(user);
-      toast.success(`Created account for ${user.email}`);
+      toast.success(`Created ${user.email} — temp password: ${generated}`);
     } catch {
+      upsertAccount(localAccount);
       const local: AppUser = {
         id: `local-${Date.now()}`,
-        name: name.trim(),
-        email: email.trim(),
-        role,
-        createdAt: new Date().toISOString(),
+        name: localAccount.name,
+        email: localAccount.email,
+        role: localAccount.role,
+        createdAt: localAccount.createdAt,
       };
       onCreated(local);
-      toast.info("Backend unavailable — created locally.");
+      toast.success(`Created locally — temp password: ${generated}`);
     } finally {
       setBusy(false);
       setOpen(false);
