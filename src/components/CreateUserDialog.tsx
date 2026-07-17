@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/select";
 import { usersApi, type AppUser } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  generatePassword,
+  upsertAccount,
+  findAccount,
+  type LocalAccount,
+} from "@/lib/accountUtils";
 
 interface CreateUserDialogProps {
   onCreated: (user: AppUser) => void;
