@@ -125,8 +125,60 @@ const RegisteredAccountsList = () => {
                       Added {new Date(acct.createdAt).toLocaleString()}
                     </p>
                   )}
+                  {acct.password && (
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <span className="text-[11px] text-muted-foreground">Password:</span>
+                      <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px]">
+                        {revealed[acct.email] ? acct.password : "••••••••••"}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={() =>
+                          setRevealed((r) => ({ ...r, [acct.email]: !r[acct.email] }))
+                        }
+                        aria-label={revealed[acct.email] ? "Hide password" : "Show password"}
+                      >
+                        {revealed[acct.email] ? (
+                          <EyeOff className="h-3 w-3" />
+                        ) : (
+                          <Eye className="h-3 w-3" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(acct.password!);
+                            toast.success("Password copied");
+                          } catch {
+                            toast.error("Copy failed");
+                          }
+                        }}
+                        aria-label="Copy password"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setChangeTarget(acct);
+                      setNewPassword("");
+                      setConfirmPassword("");
+                    }}
+                    className="gap-1"
+                    aria-label={`Change password for ${acct.email}`}
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Change password
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"
@@ -134,7 +186,7 @@ const RegisteredAccountsList = () => {
                     className="gap-1"
                     aria-label={`Reset password for ${acct.email}`}
                   >
-                    <KeyRound className="h-3.5 w-3.5" /> Reset password
+                    <KeyRound className="h-3.5 w-3.5" /> Reset
                   </Button>
                   {acct.role !== "webmaster" && (
                     <Button
