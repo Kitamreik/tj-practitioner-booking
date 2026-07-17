@@ -17,6 +17,7 @@ import {
   readAccounts,
   writeAccounts,
   resetAccountPassword,
+  setAccountPassword,
   type LocalAccount,
 } from "@/lib/accountUtils";
 
