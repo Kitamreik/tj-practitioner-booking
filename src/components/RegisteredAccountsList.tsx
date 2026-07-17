@@ -39,6 +39,10 @@ const RegisteredAccountsList = () => {
   const [deleteTarget, setDeleteTarget] = useState<LocalAccount | null>(null);
   const [resetResult, setResetResult] = useState<{ email: string; name: string; password: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [changeTarget, setChangeTarget] = useState<LocalAccount | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const loadAccounts = useCallback(() => {
     setAccounts(sortNewestFirst(readAccounts()));
