@@ -93,7 +93,7 @@ const AppContent = () => (
           <Route
             path="/webmaster"
             element={
-              <AuthGuard allowedRoles={["webmaster"]}>
+              <AuthGuard allowedRoles={["admin", "webmaster"]}>
                 <WebmasterPage />
               </AuthGuard>
             }
