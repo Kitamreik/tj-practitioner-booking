@@ -250,6 +250,69 @@ const RegisteredAccountsList = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={!!changeTarget}
+        onOpenChange={(o) => { if (!o) { setChangeTarget(null); setNewPassword(""); setConfirmPassword(""); } }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change password</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <p className="text-sm text-muted-foreground">
+              Set a new password for <strong>{changeTarget?.name}</strong> ({changeTarget?.email}).
+            </p>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">New password</label>
+              <Input
+                type="text"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="font-mono"
+                placeholder="Min 8 characters"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Confirm password</label>
+              <Input
+                type="text"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="font-mono"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setChangeTarget(null)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                if (!changeTarget) return;
+                if (newPassword.length < 8) {
+                  toast.error("Password must be at least 8 characters.");
+                  return;
+                }
+                if (newPassword !== confirmPassword) {
+                  toast.error("Passwords do not match.");
+                  return;
+                }
+                const ok = setAccountPassword(changeTarget.email, newPassword);
+                if (ok) {
+                  toast.success(`Password updated for ${changeTarget.email}`);
+                  loadAccounts();
+                  setChangeTarget(null);
+                  setNewPassword("");
+                  setConfirmPassword("");
+                } else {
+                  toast.error("Could not update password.");
+                }
+              }}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
