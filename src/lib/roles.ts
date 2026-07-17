@@ -41,6 +41,6 @@ export function useRole(): { role: AppRole; isAdmin: boolean; isFellow: boolean;
     if (local.signedIn && local.role) {
       return build(local.role as AppRole, true);
     }
-    return build("admin", true);
+    return build("fellow", true);
   }
 }
