@@ -11,6 +11,7 @@ const stats = [
 ];
 
 const Index = () => {
+  const { isSignedIn } = useIsSignedIn();
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -24,21 +25,37 @@ const Index = () => {
             Connect with expert practitioners and schedule appointments effortlessly.
             Manage your bookings, track your sessions, and take control of your healing journey.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-4">
-            {/* <Link
-              to="/api/bookings/"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-heading text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
-            >
-              Browse Bookings
-              <ArrowRight className="h-4 w-4" />
-            </Link> */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
-              to="/sign-in"
+              to="/practicum"
               className="inline-flex items-center gap-2 rounded-lg border bg-card px-6 py-3 font-heading text-sm font-semibold text-foreground transition-colors hover:bg-accent"
             >
-              Sign In
+              <ClipboardList className="h-4 w-4" />
+              Start a Client Intake
             </Link>
+            {isSignedIn ? (
+              <Link
+                to="/reservations"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-heading text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
+              >
+                Book a Session
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <Link
+                to="/sign-in?next=%2Freservations"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-heading text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
+              >
+                <LogIn className="h-4 w-4" />
+                Sign In to Book
+              </Link>
+            )}
           </div>
+          {!isSignedIn && (
+            <p className="mt-4 text-xs text-muted-foreground">
+              Browsing is open to everyone. Sign in to book sessions or access your dashboard.
+            </p>
+          )}
         </div>
       </section>
 
