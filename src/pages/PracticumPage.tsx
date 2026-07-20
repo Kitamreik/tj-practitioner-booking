@@ -14,8 +14,10 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCreateBooking } from "@/hooks/useBookings";
 import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
+import { useIsSignedIn } from "@/lib/useSession";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search } from "lucide-react";
+import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search, LogIn, Lock } from "lucide-react";
 
 const referralSources = [
   "Friend/Family",
