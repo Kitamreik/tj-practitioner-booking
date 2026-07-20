@@ -14,8 +14,10 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCreateBooking } from "@/hooks/useBookings";
 import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
+import { useIsSignedIn } from "@/lib/useSession";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search } from "lucide-react";
+import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search, LogIn, Lock } from "lucide-react";
 
 const referralSources = [
   "Friend/Family",
@@ -74,6 +76,8 @@ interface PastIntake {
 
 const PracticumPage = () => {
   const services = useEnabledServices();
+  const { isSignedIn } = useIsSignedIn();
+  const navigate = useNavigate();
   const [isReturning, setIsReturning] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [pastIntakes, setPastIntakes] = useState<PastIntake[]>([]);
@@ -153,6 +157,11 @@ const PracticumPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isSignedIn) {
+      toast.info("Please sign in to submit a client intake.");
+      navigate("/sign-in?next=%2Fpracticum");
+      return;
+    }
     if (!validate()) return;
 
     if (!hasMappedScenarios(formData.service)) {
@@ -230,6 +239,25 @@ const PracticumPage = () => {
             Complete this mock intake form to emulate a new client onboarding
           </p>
         </div>
+
+        {!isSignedIn && (
+          <div className="mb-6 flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-2 text-foreground">
+              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>
+                You can review this intake form freely. Sign in to submit it as a real booking.
+              </span>
+            </div>
+            <Link
+              to="/sign-in?next=%2Fpracticum"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 font-heading text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Sign in to submit
+            </Link>
+          </div>
+        )}
+
 
         <Card>
           <CardHeader>
@@ -430,9 +458,25 @@ const PracticumPage = () => {
 
               <div className="mt-6 border-t pt-6">
                 <Button type="submit" className="w-full gap-2" disabled={createBooking.isPending}>
-                  {createBooking.isPending ? "Submitting Intake..." : "Submit Client Intake"}
-                  <ArrowRight className="h-4 w-4" />
+                  {!isSignedIn ? (
+                    <>
+                      <LogIn className="h-4 w-4" />
+                      Sign in to Submit Intake
+                    </>
+                  ) : createBooking.isPending ? (
+                    "Submitting Intake..."
+                  ) : (
+                    <>
+                      Submit Client Intake
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
                 </Button>
+                {!isSignedIn && (
+                  <p className="mt-2 text-center text-xs text-muted-foreground">
+                    Submissions are restricted to authenticated practitioners.
+                  </p>
+                )}
               </div>
             </form>
           </CardContent>
