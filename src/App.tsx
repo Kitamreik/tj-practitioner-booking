@@ -74,14 +74,7 @@ const AppContent = () => (
               </AuthGuard>
             }
           />
-          <Route
-            path="/practicum"
-            element={
-              <AuthGuard>
-                <PracticumPage />
-              </AuthGuard>
-            }
-          />
+          <Route path="/practicum" element={<PracticumPage />} />
           <Route
             path="/profile"
             element={
