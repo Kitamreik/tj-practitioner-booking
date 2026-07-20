@@ -76,6 +76,8 @@ interface PastIntake {
 
 const PracticumPage = () => {
   const services = useEnabledServices();
+  const { isSignedIn } = useIsSignedIn();
+  const navigate = useNavigate();
   const [isReturning, setIsReturning] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [pastIntakes, setPastIntakes] = useState<PastIntake[]>([]);
