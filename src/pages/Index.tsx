@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Calendar, ArrowRight, Users, Clock, CheckCircle } from "lucide-react";
+import { Calendar, ArrowRight, Users, Clock, CheckCircle, ClipboardList, LogIn } from "lucide-react";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
+import { useIsSignedIn } from "@/lib/useSession";
 
 const stats = [
   { label: "Active Practitioners", value: "5", icon: Users },
