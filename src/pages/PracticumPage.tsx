@@ -157,6 +157,11 @@ const PracticumPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isSignedIn) {
+      toast.info("Please sign in to submit a client intake.");
+      navigate("/sign-in?next=%2Fpracticum");
+      return;
+    }
     if (!validate()) return;
 
     if (!hasMappedScenarios(formData.service)) {
