@@ -323,6 +323,9 @@ const WebmasterPage = () => {
 
       {/* Legal & compliance documents (edit requires credential re-verification) */}
       <LegalDocsManager />
+
+      {/* Intake records — cross-verification of reference IDs against bookings */}
+      <IntakeRecordsViewer />
     </div>
   );
 };
