@@ -9,6 +9,7 @@ import CreateUserDialog from "@/components/CreateUserDialog";
 import SeedStudentDialog from "@/components/SeedStudentDialog";
 import ProductionToggles from "@/components/ProductionToggles";
 import LegalDocsManager from "@/components/LegalDocsManager";
+import IntakeRecordsViewer from "@/components/IntakeRecordsViewer";
 import { Shield, Users, Pencil, Trash2, Mail, Search, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
