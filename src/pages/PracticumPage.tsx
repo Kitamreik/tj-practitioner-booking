@@ -17,7 +17,18 @@ import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
 import { useIsSignedIn } from "@/lib/useSession";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search, LogIn, Lock } from "lucide-react";
+import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search, LogIn, Lock, Copy, Hash } from "lucide-react";
+
+/**
+ * Generates a human-readable intake reference (e.g. INT-A3F91C).
+ * Uses crypto.getRandomValues so the ID is unpredictable — clients must
+ * hold on to it to retrieve their submission later.
+ */
+const generateIntakeRef = (): string => {
+  const buf = new Uint8Array(3);
+  crypto.getRandomValues(buf);
+  return "INT-" + Array.from(buf).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+};
 
 const referralSources = [
   "Friend/Family",
