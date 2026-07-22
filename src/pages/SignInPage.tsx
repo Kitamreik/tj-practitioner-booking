@@ -51,10 +51,30 @@ const SignInPage = () => {
         if (result.status === "complete") {
           logLoginAttempt({ email, method: "local", success: true });
           window.location.href = safeNext;
+        } else {
+          // e.g. needs_second_factor, needs_first_factor — surface generically.
+          toast.error("Additional verification required to sign in.");
         }
-      }).catch(() => {
+      }).catch((err: { errors?: Array<{ code?: string; message?: string }> }) => {
         logLoginAttempt({ email, method: "local", success: false });
-        toast.error("Invalid email or password.");
+        const code = err?.errors?.[0]?.code;
+        // Return the same message for unknown-identifier and wrong-password so
+        // we don't leak whether an account exists (credential enumeration).
+        if (
+          code === "form_identifier_not_found" ||
+          code === "form_password_incorrect" ||
+          code === "strategy_for_user_invalid"
+        ) {
+          toast.error("The email or password you entered is incorrect.");
+        } else if (code === "form_identifier_exists") {
+          toast.error("An account with that email already exists.");
+        } else if (code === "too_many_requests") {
+          toast.error("Too many attempts. Please wait a moment and try again.");
+        } else if (code === "form_param_format_invalid") {
+          toast.error("Please enter a valid email address.");
+        } else {
+          toast.error("We couldn't sign you in. Please try again.");
+        }
       });
     };
   } catch {
