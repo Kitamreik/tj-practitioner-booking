@@ -51,10 +51,23 @@ const SignUpPage = () => {
         lastName: rest.join(" ") || undefined,
       }).then(() => {
         logLoginAttempt({ email, method: "local", success: true });
-        toast.success("Check your email to verify your account.");
-      }).catch((err) => {
+        toast.success("Account created. Check your email to verify.");
+      }).catch((err: { errors?: Array<{ code?: string; message?: string }> }) => {
         logLoginAttempt({ email, method: "local", success: false });
-        toast.error(err.errors?.[0]?.message || "Sign up failed.");
+        const code = err?.errors?.[0]?.code;
+        if (code === "form_identifier_exists") {
+          toast.error("An account with that email already exists. Try signing in instead.");
+        } else if (code === "form_password_pwned") {
+          toast.error("That password has appeared in a public breach. Please choose a stronger one.");
+        } else if (code === "form_password_length_too_short") {
+          toast.error("Password is too short — use at least 8 characters.");
+        } else if (code === "form_param_format_invalid") {
+          toast.error("Please enter a valid email address.");
+        } else if (code === "form_param_nil" || code === "form_param_missing") {
+          toast.error("Please fill in all required fields.");
+        } else {
+          toast.error("We couldn't create your account. Please try again.");
+        }
       });
     };
   } catch {
@@ -70,18 +83,28 @@ const SignUpPage = () => {
     if (signUpWithForm) {
       signUpWithForm(e);
     } else {
-      if (!name || !email || !password) {
+      if (!name.trim() || !email.trim() || !password) {
         toast.error("Please fill in all fields.");
         return;
       }
-      const role = accountType === "student" ? "fellow" : "admin";
-      localStorage.setItem("local-auth", JSON.stringify({ email, name, signedIn: true, role }));
-      // Store in registered accounts list for webmaster visibility
-      const accounts = JSON.parse(localStorage.getItem("registered_accounts") || "[]");
-      if (!accounts.find((a: { email: string }) => a.email === email)) {
-        accounts.push({ email, name, role, signedIn: true, createdAt: new Date().toISOString() });
-        localStorage.setItem("registered_accounts", JSON.stringify(accounts));
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        toast.error("Please enter a valid email address.");
+        return;
       }
+      if (password.length < 8) {
+        toast.error("Password must be at least 8 characters.");
+        return;
+      }
+      const accounts = JSON.parse(localStorage.getItem("registered_accounts") || "[]");
+      const emailLower = email.trim().toLowerCase();
+      if (accounts.find((a: { email: string }) => a.email.toLowerCase() === emailLower)) {
+        toast.error("An account with that email already exists. Try signing in instead.");
+        return;
+      }
+      const role = accountType === "student" ? "fellow" : "admin";
+      localStorage.setItem("local-auth", JSON.stringify({ email: email.trim(), name: name.trim(), signedIn: true, role }));
+      accounts.push({ email: email.trim(), name: name.trim(), role, signedIn: true, createdAt: new Date().toISOString() });
+      localStorage.setItem("registered_accounts", JSON.stringify(accounts));
       logLoginAttempt({ email, method: "local", success: true });
       toast.success("Account created locally (demo mode).");
       window.location.href = "/";

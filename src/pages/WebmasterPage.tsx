@@ -9,6 +9,7 @@ import CreateUserDialog from "@/components/CreateUserDialog";
 import SeedStudentDialog from "@/components/SeedStudentDialog";
 import ProductionToggles from "@/components/ProductionToggles";
 import LegalDocsManager from "@/components/LegalDocsManager";
+import IntakeRecordsViewer from "@/components/IntakeRecordsViewer";
 import { Shield, Users, Pencil, Trash2, Mail, Search, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -322,6 +323,9 @@ const WebmasterPage = () => {
 
       {/* Legal & compliance documents (edit requires credential re-verification) */}
       <LegalDocsManager />
+
+      {/* Intake records — cross-verification of reference IDs against bookings */}
+      <IntakeRecordsViewer />
     </div>
   );
 };

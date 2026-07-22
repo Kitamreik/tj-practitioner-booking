@@ -17,7 +17,18 @@ import { useEnabledServices, hasMappedScenarios } from "@/lib/services";
 import { useIsSignedIn } from "@/lib/useSession";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search, LogIn, Lock } from "lucide-react";
+import { ClipboardList, CheckCircle, ArrowRight, User, Phone, Mail, AlertCircle, Search, LogIn, Lock, Copy, Hash } from "lucide-react";
+
+/**
+ * Generates a human-readable intake reference (e.g. INT-A3F91C).
+ * Uses crypto.getRandomValues so the ID is unpredictable — clients must
+ * hold on to it to retrieve their submission later.
+ */
+const generateIntakeRef = (): string => {
+  const buf = new Uint8Array(3);
+  crypto.getRandomValues(buf);
+  return "INT-" + Array.from(buf).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+};
 
 const referralSources = [
   "Friend/Family",
@@ -81,6 +92,7 @@ const PracticumPage = () => {
   const [isReturning, setIsReturning] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [pastIntakes, setPastIntakes] = useState<PastIntake[]>([]);
+  const [submittedRef, setSubmittedRef] = useState<string | null>(null);
   const [formData, setFormData] = useState<IntakeFormData>({
     firstName: "",
     lastName: "",
@@ -102,17 +114,30 @@ const PracticumPage = () => {
     setPastIntakes(stored);
   }, []);
 
+  // Search access model (mirrors what a server would enforce):
+  //  - Guests may look up an intake ONLY by its exact reference ID.
+  //    Name-based lookup would leak other clients' PII to any visitor.
+  //  - Signed-in practitioners (fellow/admin/webmaster) may search by
+  //    partial name OR reference ID.
   const matchingClients = useMemo(() => {
-    if (!clientSearch.trim()) return [];
-    const q = clientSearch.toLowerCase();
-    // Deduplicate by fullName
+    const raw = clientSearch.trim();
+    if (!raw) return [];
+    const q = raw.toLowerCase();
+    const looksLikeRef = /^int-[0-9a-f]{6}$/i.test(raw);
+
+    if (!isSignedIn) {
+      if (!looksLikeRef) return [];
+      return pastIntakes.filter((r) => r.id.toLowerCase() === q).slice(0, 1);
+    }
+
     const seen = new Set<string>();
     return pastIntakes.filter((r) => {
+      if (r.id.toLowerCase() === q) return true;
       if (seen.has(r.fullName)) return false;
       seen.add(r.fullName);
       return r.fullName.toLowerCase().includes(q);
     }).slice(0, 5);
-  }, [clientSearch, pastIntakes]);
+  }, [clientSearch, pastIntakes, isSignedIn]);
 
   const prefillFromRecord = (record: PastIntake) => {
     setFormData((prev) => ({
@@ -126,6 +151,7 @@ const PracticumPage = () => {
       referralSource: record.referralSource || "",
     }));
     setClientSearch("");
+    toast.success(`Prefilled from intake ${record.id}`);
   };
 
   const updateField = (field: keyof IntakeFormData, value: string) => {
@@ -155,10 +181,11 @@ const PracticumPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const persistIntakeRecord = (fullName: string) => {
+  const persistIntakeRecord = (fullName: string): string => {
     const intakeRecords = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
+    const ref = generateIntakeRef();
     const record = {
-      id: crypto.randomUUID(),
+      id: ref,
       ...formData,
       fullName,
       submittedAt: new Date().toISOString(),
@@ -167,6 +194,7 @@ const PracticumPage = () => {
     intakeRecords.push(record);
     localStorage.setItem("practicum_intakes", JSON.stringify(intakeRecords));
     setPastIntakes(intakeRecords);
+    return ref;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -179,11 +207,9 @@ const PracticumPage = () => {
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
 
-    // Guests: save intake locally so it appears in the search and admin
-    // intake viewer without needing a practitioner account.
     if (!isSignedIn) {
-      persistIntakeRecord(fullName);
-      toast.success("Intake submitted. A practitioner will follow up.");
+      const ref = persistIntakeRecord(fullName);
+      setSubmittedRef(ref);
       setSubmitted(true);
       return;
     }
@@ -199,7 +225,8 @@ const PracticumPage = () => {
       },
       {
         onSuccess: () => {
-          persistIntakeRecord(fullName);
+          const ref = persistIntakeRecord(fullName);
+          setSubmittedRef(ref);
           setSubmitted(true);
         },
       }
@@ -214,9 +241,20 @@ const PracticumPage = () => {
     });
     setErrors({});
     setSubmitted(false);
+    setSubmittedRef(null);
   };
 
-  if (submitted) {
+  const copyRef = async () => {
+    if (!submittedRef) return;
+    try {
+      await navigator.clipboard.writeText(submittedRef);
+      toast.success("Reference ID copied");
+    } catch {
+      toast.error("Copy failed — please copy manually.");
+    }
+  };
+
+  if (submitted && submittedRef) {
     return (
       <div className="container flex min-h-[60vh] items-center justify-center py-12">
         <Card className="w-full max-w-md text-center">
@@ -224,9 +262,22 @@ const PracticumPage = () => {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <CheckCircle className="h-8 w-8 text-primary" />
             </div>
-            <h2 className="font-heading text-2xl font-bold text-foreground">Intake Submitted!</h2>
-            <p className="text-muted-foreground">
-              Your client intake has been recorded and a booking request created. A practitioner will follow up shortly.
+            <h2 className="font-heading text-2xl font-bold text-foreground">Intake Submitted</h2>
+            <p className="text-sm text-muted-foreground">
+              Save your reference ID — you'll need it to look up this intake later.
+            </p>
+            <div className="mx-auto flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
+              <Hash className="h-4 w-4 text-primary" />
+              <code className="font-mono text-lg font-bold tracking-wider text-foreground" data-testid="intake-ref">
+                {submittedRef}
+              </code>
+              <Button size="sm" variant="ghost" onClick={copyRef} aria-label="Copy reference ID">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              To retrieve this intake, check "I am a returning client" and paste your
+              reference ID into the search field.
             </p>
             <Button onClick={resetForm} variant="outline" className="mt-4">
               Submit Another Intake
@@ -254,7 +305,7 @@ const PracticumPage = () => {
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
             <Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <span>
-              Anyone can submit this intake — a practitioner will follow up by email. Returning clients can search by name below to prefill their details.
+              Anyone can submit this intake — a practitioner will follow up by email. You'll receive a reference ID after submitting; keep it safe to look up your intake later.
             </span>
           </div>
         )}
@@ -283,12 +334,20 @@ const PracticumPage = () => {
 
             {isReturning && (
               <div className="mb-6 space-y-2">
-                <Label className="flex items-center gap-1"><Search className="h-3.5 w-3.5" /> Search by name</Label>
+                <Label className="flex items-center gap-1">
+                  <Search className="h-3.5 w-3.5" />
+                  {isSignedIn ? "Search by name or reference ID" : "Enter your reference ID"}
+                </Label>
                 <Input
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
-                  placeholder="Start typing your name..."
+                  placeholder={isSignedIn ? "e.g. Jane Doe or INT-A3F91C" : "INT-XXXXXX"}
                 />
+                {!isSignedIn && (
+                  <p className="text-xs text-muted-foreground">
+                    For privacy, guests can only retrieve an intake using the exact reference ID shown after submission.
+                  </p>
+                )}
                 {matchingClients.length > 0 && (
                   <div className="rounded-lg border bg-card p-1">
                     {matchingClients.map((c) => (
@@ -296,13 +355,23 @@ const PracticumPage = () => {
                         key={c.id}
                         type="button"
                         onClick={() => prefillFromRecord(c)}
-                        className="w-full rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
+                        className="flex w-full flex-col items-start gap-0.5 rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
                       >
-                        <span className="font-medium text-foreground">{c.fullName}</span>
-                        <span className="ml-2 text-xs text-muted-foreground">{c.email}</span>
+                        <div className="flex w-full items-center justify-between gap-2">
+                          <span className="font-medium text-foreground">{c.fullName}</span>
+                          <code className="font-mono text-[10px] text-primary">{c.id}</code>
+                        </div>
+                        {isSignedIn && (
+                          <span className="text-xs text-muted-foreground">{c.email}</span>
+                        )}
                       </button>
                     ))}
                   </div>
+                )}
+                {!isSignedIn && clientSearch.trim() && matchingClients.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No intake found for that reference ID.
+                  </p>
                 )}
               </div>
             )}
