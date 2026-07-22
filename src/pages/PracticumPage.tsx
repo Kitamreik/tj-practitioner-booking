@@ -181,10 +181,11 @@ const PracticumPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const persistIntakeRecord = (fullName: string) => {
+  const persistIntakeRecord = (fullName: string): string => {
     const intakeRecords = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
+    const ref = generateIntakeRef();
     const record = {
-      id: crypto.randomUUID(),
+      id: ref,
       ...formData,
       fullName,
       submittedAt: new Date().toISOString(),
@@ -193,6 +194,7 @@ const PracticumPage = () => {
     intakeRecords.push(record);
     localStorage.setItem("practicum_intakes", JSON.stringify(intakeRecords));
     setPastIntakes(intakeRecords);
+    return ref;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -205,11 +207,9 @@ const PracticumPage = () => {
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
 
-    // Guests: save intake locally so it appears in the search and admin
-    // intake viewer without needing a practitioner account.
     if (!isSignedIn) {
-      persistIntakeRecord(fullName);
-      toast.success("Intake submitted. A practitioner will follow up.");
+      const ref = persistIntakeRecord(fullName);
+      setSubmittedRef(ref);
       setSubmitted(true);
       return;
     }
@@ -225,7 +225,8 @@ const PracticumPage = () => {
       },
       {
         onSuccess: () => {
-          persistIntakeRecord(fullName);
+          const ref = persistIntakeRecord(fullName);
+          setSubmittedRef(ref);
           setSubmitted(true);
         },
       }
@@ -240,9 +241,20 @@ const PracticumPage = () => {
     });
     setErrors({});
     setSubmitted(false);
+    setSubmittedRef(null);
   };
 
-  if (submitted) {
+  const copyRef = async () => {
+    if (!submittedRef) return;
+    try {
+      await navigator.clipboard.writeText(submittedRef);
+      toast.success("Reference ID copied");
+    } catch {
+      toast.error("Copy failed — please copy manually.");
+    }
+  };
+
+  if (submitted && submittedRef) {
     return (
       <div className="container flex min-h-[60vh] items-center justify-center py-12">
         <Card className="w-full max-w-md text-center">
@@ -250,9 +262,22 @@ const PracticumPage = () => {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <CheckCircle className="h-8 w-8 text-primary" />
             </div>
-            <h2 className="font-heading text-2xl font-bold text-foreground">Intake Submitted!</h2>
-            <p className="text-muted-foreground">
-              Your client intake has been recorded and a booking request created. A practitioner will follow up shortly.
+            <h2 className="font-heading text-2xl font-bold text-foreground">Intake Submitted</h2>
+            <p className="text-sm text-muted-foreground">
+              Save your reference ID — you'll need it to look up this intake later.
+            </p>
+            <div className="mx-auto flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
+              <Hash className="h-4 w-4 text-primary" />
+              <code className="font-mono text-lg font-bold tracking-wider text-foreground" data-testid="intake-ref">
+                {submittedRef}
+              </code>
+              <Button size="sm" variant="ghost" onClick={copyRef} aria-label="Copy reference ID">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              To retrieve this intake, check "I am a returning client" and paste your
+              reference ID into the search field.
             </p>
             <Button onClick={resetForm} variant="outline" className="mt-4">
               Submit Another Intake
