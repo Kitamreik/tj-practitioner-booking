@@ -6,7 +6,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ClipboardList, ChevronDown, ChevronUp, User, Mail, Phone, Calendar, Trash2 } from "lucide-react";
+import { ClipboardList, ChevronDown, ChevronUp, User, Mail, Phone, Calendar, Trash2, Hash, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 interface IntakeRecord {
