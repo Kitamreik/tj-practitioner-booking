@@ -41,7 +41,11 @@ function useDisplayName(): { name: string; role: string } | null {
     };
     read();
     window.addEventListener("storage", read);
-    return () => window.removeEventListener("storage", read);
+    window.addEventListener("registered-accounts:changed", read);
+    return () => {
+      window.removeEventListener("storage", read);
+      window.removeEventListener("registered-accounts:changed", read);
+    };
   }, []);
 
   if (isSignedIn && user) {

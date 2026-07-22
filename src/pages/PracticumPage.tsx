@@ -155,13 +155,22 @@ const PracticumPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const persistIntakeRecord = (fullName: string) => {
+    const intakeRecords = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
+    const record = {
+      id: crypto.randomUUID(),
+      ...formData,
+      fullName,
+      submittedAt: new Date().toISOString(),
+      submittedBy: isSignedIn ? "practitioner" : "guest",
+    };
+    intakeRecords.push(record);
+    localStorage.setItem("practicum_intakes", JSON.stringify(intakeRecords));
+    setPastIntakes(intakeRecords);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isSignedIn) {
-      toast.info("Please sign in to submit a client intake.");
-      navigate("/sign-in?next=%2Fpracticum");
-      return;
-    }
     if (!validate()) return;
 
     if (!hasMappedScenarios(formData.service)) {
@@ -169,6 +178,15 @@ const PracticumPage = () => {
     }
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+
+    // Guests: save intake locally so it appears in the search and admin
+    // intake viewer without needing a practitioner account.
+    if (!isSignedIn) {
+      persistIntakeRecord(fullName);
+      toast.success("Intake submitted. A practitioner will follow up.");
+      setSubmitted(true);
+      return;
+    }
 
     createBooking.mutate(
       {
@@ -181,15 +199,7 @@ const PracticumPage = () => {
       },
       {
         onSuccess: () => {
-          // Also store the intake details locally for fellow review
-          const intakeRecords = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
-          intakeRecords.push({
-            id: crypto.randomUUID(),
-            ...formData,
-            fullName,
-            submittedAt: new Date().toISOString(),
-          });
-          localStorage.setItem("practicum_intakes", JSON.stringify(intakeRecords));
+          persistIntakeRecord(fullName);
           setSubmitted(true);
         },
       }
@@ -241,20 +251,11 @@ const PracticumPage = () => {
         </div>
 
         {!isSignedIn && (
-          <div className="mb-6 flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-2 text-foreground">
-              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <span>
-                You can review this intake form freely. Sign in to submit it as a real booking.
-              </span>
-            </div>
-            <Link
-              to="/sign-in?next=%2Fpracticum"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 font-heading text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-            >
-              <LogIn className="h-3.5 w-3.5" />
-              Sign in to submit
-            </Link>
+          <div className="mb-6 flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
+            <Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <span>
+              Anyone can submit this intake — a practitioner will follow up by email. Returning clients can search by name below to prefill their details.
+            </span>
           </div>
         )}
 
@@ -458,12 +459,7 @@ const PracticumPage = () => {
 
               <div className="mt-6 border-t pt-6">
                 <Button type="submit" className="w-full gap-2" disabled={createBooking.isPending}>
-                  {!isSignedIn ? (
-                    <>
-                      <LogIn className="h-4 w-4" />
-                      Sign in to Submit Intake
-                    </>
-                  ) : createBooking.isPending ? (
+                  {createBooking.isPending ? (
                     "Submitting Intake..."
                   ) : (
                     <>
@@ -472,11 +468,6 @@ const PracticumPage = () => {
                     </>
                   )}
                 </Button>
-                {!isSignedIn && (
-                  <p className="mt-2 text-center text-xs text-muted-foreground">
-                    Submissions are restricted to authenticated practitioners.
-                  </p>
-                )}
               </div>
             </form>
           </CardContent>
