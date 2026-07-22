@@ -76,11 +76,28 @@ const IntakeRecordsViewer = () => {
             <Card key={r.id} className="transition-all hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
                       <User className="h-4 w-4 text-muted-foreground" />
                       <span className="font-heading text-sm font-semibold text-foreground">{r.fullName}</span>
                       <Badge variant="outline" className={urgencyColor[r.urgency] || ""}>{r.urgency}</Badge>
+                      <Badge variant="outline" className="gap-1 font-mono text-[10px] text-primary border-primary/30">
+                        <Hash className="h-3 w-3" />{r.id}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(r.id).then(
+                              () => toast.success("Reference ID copied"),
+                              () => toast.error("Copy failed")
+                            );
+                          }}
+                          className="ml-1 hover:text-foreground"
+                          aria-label="Copy reference ID"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                      </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">{r.service}{r.practitioner ? ` · ${r.practitioner}` : ""}</p>
                   </div>
