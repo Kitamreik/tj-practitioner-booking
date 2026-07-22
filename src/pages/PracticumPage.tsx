@@ -459,12 +459,7 @@ const PracticumPage = () => {
 
               <div className="mt-6 border-t pt-6">
                 <Button type="submit" className="w-full gap-2" disabled={createBooking.isPending}>
-                  {!isSignedIn ? (
-                    <>
-                      <LogIn className="h-4 w-4" />
-                      Sign in to Submit Intake
-                    </>
-                  ) : createBooking.isPending ? (
+                  {createBooking.isPending ? (
                     "Submitting Intake..."
                   ) : (
                     <>
@@ -473,11 +468,6 @@ const PracticumPage = () => {
                     </>
                   )}
                 </Button>
-                {!isSignedIn && (
-                  <p className="mt-2 text-center text-xs text-muted-foreground">
-                    Submissions are restricted to authenticated practitioners.
-                  </p>
-                )}
               </div>
             </form>
           </CardContent>
