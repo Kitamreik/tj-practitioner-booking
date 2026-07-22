@@ -92,6 +92,7 @@ const PracticumPage = () => {
   const [isReturning, setIsReturning] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [pastIntakes, setPastIntakes] = useState<PastIntake[]>([]);
+  const [submittedRef, setSubmittedRef] = useState<string | null>(null);
   const [formData, setFormData] = useState<IntakeFormData>({
     firstName: "",
     lastName: "",
