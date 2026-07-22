@@ -114,17 +114,30 @@ const PracticumPage = () => {
     setPastIntakes(stored);
   }, []);
 
+  // Search access model (mirrors what a server would enforce):
+  //  - Guests may look up an intake ONLY by its exact reference ID.
+  //    Name-based lookup would leak other clients' PII to any visitor.
+  //  - Signed-in practitioners (fellow/admin/webmaster) may search by
+  //    partial name OR reference ID.
   const matchingClients = useMemo(() => {
-    if (!clientSearch.trim()) return [];
-    const q = clientSearch.toLowerCase();
-    // Deduplicate by fullName
+    const raw = clientSearch.trim();
+    if (!raw) return [];
+    const q = raw.toLowerCase();
+    const looksLikeRef = /^int-[0-9a-f]{6}$/i.test(raw);
+
+    if (!isSignedIn) {
+      if (!looksLikeRef) return [];
+      return pastIntakes.filter((r) => r.id.toLowerCase() === q).slice(0, 1);
+    }
+
     const seen = new Set<string>();
     return pastIntakes.filter((r) => {
+      if (r.id.toLowerCase() === q) return true;
       if (seen.has(r.fullName)) return false;
       seen.add(r.fullName);
       return r.fullName.toLowerCase().includes(q);
     }).slice(0, 5);
-  }, [clientSearch, pastIntakes]);
+  }, [clientSearch, pastIntakes, isSignedIn]);
 
   const prefillFromRecord = (record: PastIntake) => {
     setFormData((prev) => ({
@@ -138,6 +151,7 @@ const PracticumPage = () => {
       referralSource: record.referralSource || "",
     }));
     setClientSearch("");
+    toast.success(`Prefilled from intake ${record.id}`);
   };
 
   const updateField = (field: keyof IntakeFormData, value: string) => {
