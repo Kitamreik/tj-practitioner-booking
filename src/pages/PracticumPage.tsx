@@ -334,12 +334,20 @@ const PracticumPage = () => {
 
             {isReturning && (
               <div className="mb-6 space-y-2">
-                <Label className="flex items-center gap-1"><Search className="h-3.5 w-3.5" /> Search by name</Label>
+                <Label className="flex items-center gap-1">
+                  <Search className="h-3.5 w-3.5" />
+                  {isSignedIn ? "Search by name or reference ID" : "Enter your reference ID"}
+                </Label>
                 <Input
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
-                  placeholder="Start typing your name..."
+                  placeholder={isSignedIn ? "e.g. Jane Doe or INT-A3F91C" : "INT-XXXXXX"}
                 />
+                {!isSignedIn && (
+                  <p className="text-xs text-muted-foreground">
+                    For privacy, guests can only retrieve an intake using the exact reference ID shown after submission.
+                  </p>
+                )}
                 {matchingClients.length > 0 && (
                   <div className="rounded-lg border bg-card p-1">
                     {matchingClients.map((c) => (
@@ -347,13 +355,23 @@ const PracticumPage = () => {
                         key={c.id}
                         type="button"
                         onClick={() => prefillFromRecord(c)}
-                        className="w-full rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
+                        className="flex w-full flex-col items-start gap-0.5 rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
                       >
-                        <span className="font-medium text-foreground">{c.fullName}</span>
-                        <span className="ml-2 text-xs text-muted-foreground">{c.email}</span>
+                        <div className="flex w-full items-center justify-between gap-2">
+                          <span className="font-medium text-foreground">{c.fullName}</span>
+                          <code className="font-mono text-[10px] text-primary">{c.id}</code>
+                        </div>
+                        {isSignedIn && (
+                          <span className="text-xs text-muted-foreground">{c.email}</span>
+                        )}
                       </button>
                     ))}
                   </div>
+                )}
+                {!isSignedIn && clientSearch.trim() && matchingClients.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No intake found for that reference ID.
+                  </p>
                 )}
               </div>
             )}
