@@ -305,7 +305,7 @@ const PracticumPage = () => {
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground">
             <Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <span>
-              Anyone can submit this intake — a practitioner will follow up by email. Returning clients can search by name below to prefill their details.
+              Anyone can submit this intake — a practitioner will follow up by email. You'll receive a reference ID after submitting; keep it safe to look up your intake later.
             </span>
           </div>
         )}
