@@ -155,13 +155,22 @@ const PracticumPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const persistIntakeRecord = (fullName: string) => {
+    const intakeRecords = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
+    const record = {
+      id: crypto.randomUUID(),
+      ...formData,
+      fullName,
+      submittedAt: new Date().toISOString(),
+      submittedBy: isSignedIn ? "practitioner" : "guest",
+    };
+    intakeRecords.push(record);
+    localStorage.setItem("practicum_intakes", JSON.stringify(intakeRecords));
+    setPastIntakes(intakeRecords);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isSignedIn) {
-      toast.info("Please sign in to submit a client intake.");
-      navigate("/sign-in?next=%2Fpracticum");
-      return;
-    }
     if (!validate()) return;
 
     if (!hasMappedScenarios(formData.service)) {
@@ -169,6 +178,15 @@ const PracticumPage = () => {
     }
 
     const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+
+    // Guests: save intake locally so it appears in the search and admin
+    // intake viewer without needing a practitioner account.
+    if (!isSignedIn) {
+      persistIntakeRecord(fullName);
+      toast.success("Intake submitted. A practitioner will follow up.");
+      setSubmitted(true);
+      return;
+    }
 
     createBooking.mutate(
       {
@@ -181,15 +199,7 @@ const PracticumPage = () => {
       },
       {
         onSuccess: () => {
-          // Also store the intake details locally for fellow review
-          const intakeRecords = JSON.parse(localStorage.getItem("practicum_intakes") || "[]");
-          intakeRecords.push({
-            id: crypto.randomUUID(),
-            ...formData,
-            fullName,
-            submittedAt: new Date().toISOString(),
-          });
-          localStorage.setItem("practicum_intakes", JSON.stringify(intakeRecords));
+          persistIntakeRecord(fullName);
           setSubmitted(true);
         },
       }
