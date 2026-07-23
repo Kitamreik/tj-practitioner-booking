@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { usersApi, type AppUser } from "@/lib/api";
 import { useRole } from "@/lib/roles";
 import LoginMonitor from "@/components/LoginMonitor";
@@ -10,6 +10,7 @@ import SeedStudentDialog from "@/components/SeedStudentDialog";
 import ProductionToggles from "@/components/ProductionToggles";
 import LegalDocsManager from "@/components/LegalDocsManager";
 import IntakeRecordsViewer from "@/components/IntakeRecordsViewer";
+import ResolvedCasesSection from "@/components/ResolvedCasesSection";
 import { Shield, Users, Pencil, Trash2, Mail, Search, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { markUserDeleted, useDeletedUserIds } from "@/lib/resolvedCases";
 
 // Mock users for demo when backend is unavailable
 const MOCK_USERS: AppUser[] = [
@@ -39,7 +41,7 @@ const roleBadgeStyles: Record<string, string> = {
 };
 
 const WebmasterPage = () => {
-  const { isWebmaster, role } = useRole();
+  const { role } = useRole();
   const [users, setUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -49,6 +51,7 @@ const WebmasterPage = () => {
   const [deleteUser, setDeleteUser] = useState<AppUser | null>(null);
   const [resetEmail, setResetEmail] = useState<AppUser | null>(null);
   const [showResetTemplate, setShowResetTemplate] = useState(false);
+  const deletedIds = useDeletedUserIds();
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -56,7 +59,6 @@ const WebmasterPage = () => {
       const data = await usersApi.getAll();
       setUsers(data);
     } catch {
-      // Fallback to mock users
       setUsers(MOCK_USERS);
     } finally {
       setLoading(false);
@@ -67,7 +69,6 @@ const WebmasterPage = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Block non-webmaster access
   if (role !== "webmaster" && role !== "admin") {
     return (
       <div className="container py-20 text-center">
@@ -78,7 +79,12 @@ const WebmasterPage = () => {
     );
   }
 
-  const filtered = users.filter((u) =>
+  const visibleUsers = useMemo(
+    () => users.filter((u) => !deletedIds.has(u.id)),
+    [users, deletedIds]
+  );
+
+  const filtered = visibleUsers.filter((u) =>
     `${u.name} ${u.email} ${u.role}`.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -104,17 +110,13 @@ const WebmasterPage = () => {
     }
     try {
       await usersApi.delete(deleteUser.id);
-      toast.success(`Deleted account for ${deleteUser.email}`);
     } catch {
-      toast.info("Backend unavailable — removed locally.");
+      // Backend unavailable — deletion is still persisted locally below.
     }
+    markUserDeleted(deleteUser.id);
     setUsers((prev) => prev.filter((u) => u.id !== deleteUser.id));
+    toast.success(`Removed ${deleteUser.email} — deletion persisted locally`);
     setDeleteUser(null);
-  };
-
-  const handlePasswordReset = async () => {
-    if (!resetEmail) return;
-    setShowResetTemplate(true);
   };
 
   const handleSendResetEmail = async () => {
@@ -164,13 +166,12 @@ const WebmasterPage = () => {
         <CreateUserDialog onCreated={(u) => setUsers((prev) => [u, ...prev])} />
       </div>
 
-      {/* Stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
         {[
-          { label: "Total Users", value: users.length, icon: Users },
-          { label: "Admins", value: users.filter((u) => u.role === "admin").length, icon: Shield },
-          { label: "Fellows", value: users.filter((u) => u.role === "fellow").length, icon: Users },
-          { label: "Webmasters", value: users.filter((u) => u.role === "webmaster").length, icon: Shield },
+          { label: "Total Users", value: visibleUsers.length, icon: Users },
+          { label: "Admins", value: visibleUsers.filter((u) => u.role === "admin").length, icon: Shield },
+          { label: "Fellows", value: visibleUsers.filter((u) => u.role === "fellow").length, icon: Users },
+          { label: "Webmasters", value: visibleUsers.filter((u) => u.role === "webmaster").length, icon: Shield },
         ].map((stat) => (
           <div key={stat.label} className="rounded-xl border bg-card p-5">
             <div className="flex items-center gap-3">
@@ -186,7 +187,6 @@ const WebmasterPage = () => {
         ))}
       </div>
 
-      {/* Search */}
       <div className="mb-6">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -257,7 +257,6 @@ const WebmasterPage = () => {
         </div>
       )}
 
-      {/* Edit Name Dialog */}
       <Dialog open={!!editUser} onOpenChange={(open) => { if (!open) setEditUser(null); }}>
         <DialogContent>
           <DialogHeader>
@@ -280,14 +279,13 @@ const WebmasterPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
       <AlertDialog open={!!deleteUser} onOpenChange={(open) => { if (!open) setDeleteUser(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Account</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to permanently delete <strong>{deleteUser?.name}</strong> ({deleteUser?.email})?
-              This action cannot be undone.
+              The deletion is stored locally so this user stays hidden across page refreshes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -299,9 +297,6 @@ const WebmasterPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Password Reset — now handled via PasswordResetEmailDialog below */}
-
-      {/* Password Reset Email Template */}
       <PasswordResetEmailDialog
         open={showResetTemplate}
         onClose={() => { setShowResetTemplate(false); setResetEmail(null); }}
@@ -309,22 +304,13 @@ const WebmasterPage = () => {
         onSend={handleSendResetEmail}
       />
 
-      {/* Login Attempt Monitor */}
+      <ResolvedCasesSection />
+
       <LoginMonitor />
-
-      {/* Profile Edit History */}
       <ProfileEditLog />
-
-      {/* Registered Accounts */}
       <RegisteredAccountsList />
-
-      {/* Production toggles (demo accounts, Google sign-in) */}
       <ProductionToggles />
-
-      {/* Legal & compliance documents (edit requires credential re-verification) */}
       <LegalDocsManager />
-
-      {/* Intake records — cross-verification of reference IDs against bookings */}
       <IntakeRecordsViewer />
     </div>
   );

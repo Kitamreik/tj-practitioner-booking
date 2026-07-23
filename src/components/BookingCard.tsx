@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, User } from "lucide-react";
+import { Clock, User, CheckCircle2 } from "lucide-react";
 import type { Booking } from "@/lib/mockData";
 import BookingChecklist from "@/components/BookingChecklist";
 import BookingComments from "@/components/BookingComments";
@@ -8,6 +9,8 @@ import FellowFileVault from "@/components/FellowFileVault";
 import ClientOnboardingNotes from "@/components/ClientOnboardingNotes";
 import AdminStudentNotes from "@/components/AdminStudentNotes";
 import BookingSignature from "@/components/BookingSignature";
+import { resolveCase } from "@/lib/resolvedCases";
+import { toast } from "sonner";
 
 interface BookingCardProps {
   booking: Booking;
@@ -100,7 +103,27 @@ const BookingCard = ({ booking, onEdit, onDelete, showActions = false, viewMode 
             </button>
           </div>
         )}
-        {showActions && <BookingChecklist bookingId={booking.id} />}
+        {showActions && (
+          <div className="flex items-start gap-2">
+            <div className="flex-1">
+              <BookingChecklist bookingId={booking.id} />
+            </div>
+            {(viewMode === "admin" || viewMode === "fellow") && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-3 gap-1.5 border-success/30 text-success hover:bg-success/10 hover:text-success"
+                onClick={() => {
+                  resolveCase(booking);
+                  toast.success(`Case for ${booking.customer_name} closed and sent to Resolved Cases`);
+                }}
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Close Case
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Fellow File Vault */}
         {viewMode && (

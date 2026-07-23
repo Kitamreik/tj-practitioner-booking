@@ -6,6 +6,7 @@ import EditBookingDialog from "@/components/EditBookingDialog";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useBookings } from "@/hooks/useBookings";
 import { useQueryClient } from "@tanstack/react-query";
+import { useResolvedIds } from "@/lib/resolvedCases";
 import { Loader2, GraduationCap } from "lucide-react";
 import type { Booking } from "@/lib/mockData";
 
@@ -17,18 +18,20 @@ const BookingsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
   const { data: bookings = [], isLoading } = useBookings();
+  const resolvedIds = useResolvedIds();
   const queryClient = useQueryClient();
   const handleRefresh = () => queryClient.invalidateQueries({ queryKey: ["bookings"] });
 
   const filtered = useMemo(() => {
     return bookings.filter((b) => {
+      if (resolvedIds.has(b.id)) return false;
       const matchesSearch = `${b.customer_name} ${b.service} ${b.practitioner || ""}`
         .toLowerCase()
         .includes(search.toLowerCase());
       const matchesStatus = statusFilter === "all" || b.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter, bookings]);
+  }, [search, statusFilter, bookings, resolvedIds]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -88,6 +91,7 @@ const BookingsPage = () => {
                   key={booking.id}
                   booking={booking}
                   showActions
+                  viewMode="fellow"
                   onEdit={(id) => {
                     const b = bookings.find((x) => x.id === id);
                     if (b) setEditBooking(b);
