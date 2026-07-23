@@ -57,7 +57,7 @@ const FellowsPage = () => {
           <div className="space-y-3">
             {paginated.length > 0 ? (
               paginated.map((booking) => (
-                <BookingCard key={booking.id} booking={booking} viewMode="fellow" />
+                <BookingCard key={booking.id} booking={booking} viewMode="fellow" showActions />
               ))
             ) : (
               <div className="rounded-xl border bg-card p-12 text-center">
