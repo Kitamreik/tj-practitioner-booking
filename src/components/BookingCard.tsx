@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, User } from "lucide-react";
+import { Clock, User, CheckCircle2 } from "lucide-react";
 import type { Booking } from "@/lib/mockData";
 import BookingChecklist from "@/components/BookingChecklist";
 import BookingComments from "@/components/BookingComments";
@@ -8,6 +9,8 @@ import FellowFileVault from "@/components/FellowFileVault";
 import ClientOnboardingNotes from "@/components/ClientOnboardingNotes";
 import AdminStudentNotes from "@/components/AdminStudentNotes";
 import BookingSignature from "@/components/BookingSignature";
+import { resolveCase } from "@/lib/resolvedCases";
+import { toast } from "sonner";
 
 interface BookingCardProps {
   booking: Booking;
