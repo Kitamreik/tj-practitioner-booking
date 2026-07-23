@@ -5,6 +5,7 @@ import PaginationControls from "@/components/PaginationControls";
 import PullToRefresh from "@/components/PullToRefresh";
 import { useBookings } from "@/hooks/useBookings";
 import { useQueryClient } from "@tanstack/react-query";
+import { useResolvedIds } from "@/lib/resolvedCases";
 import { Loader2 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 5;
@@ -13,16 +14,19 @@ const FellowsPage = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const { data: bookings = [], isLoading } = useBookings();
+  const resolvedIds = useResolvedIds();
   const queryClient = useQueryClient();
   const handleRefresh = () => queryClient.invalidateQueries({ queryKey: ["bookings"] });
 
   const filtered = useMemo(() => {
-    return bookings.filter((b) =>
-      `${b.customer_name} ${b.service} ${b.practitioner || ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [search, bookings]);
+    return bookings
+      .filter((b) => !resolvedIds.has(b.id))
+      .filter((b) =>
+        `${b.customer_name} ${b.service} ${b.practitioner || ""}`
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      );
+  }, [search, bookings, resolvedIds]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
